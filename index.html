@@ -4,7 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>АА Тушино — собрания Анонимных Алкоголиков в Москве</title>
-  <meta name="description" content="Группа Анонимных Алкоголиков «Тушино». Москва, Волоколамское шоссе, 92. Расписание собраний, тематика, размышление дня, контакты.">
+  <meta name="description" content="Группа Анонимных Алкоголиков «Тушино». Москва, Волоколамское шоссе, 92. Все собрания открытые. Расписание, тематика, Ежедневник АА, контакты.">
   <meta name="theme-color" content="#1d5fae">
 
   <meta property="og:type" content="website">
@@ -17,6 +17,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Lora:ital,wght@0,400;0,600;0,700;1,400&family=Golos+Text:wght@400;500;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css">
   <link rel="stylesheet" href="styles.css">
 </head>
 <body>
@@ -34,7 +35,7 @@
     <ul id="menu" class="menu">
       <li><a href="#schedule">Расписание</a></li>
       <li><a href="#about">Что такое АА</a></li>
-      <li><a href="#reflection">Размышление дня</a></li>
+      <li><a href="#reflection">Ежедневник</a></li>
       <li><a href="#contacts">Контакты</a></li>
       <li><a href="#links">Ссылки</a></li>
     </ul>
@@ -65,6 +66,7 @@
     <div class="next-card" id="next-meeting" aria-live="polite">
       <!-- заполняется скриптом -->
     </div>
+    <p class="hero-contact">Все собрания открытые · <a id="hero-phone"></a></p>
   </div>
 </header>
 
@@ -74,7 +76,21 @@
   <section id="schedule" class="section">
     <div class="wrap">
       <h2>Расписание собраний</h2>
-      <p class="lead">Собрания проходят очно. Регистрация и запись не нужны — просто приходите.</p>
+      <p class="lead">Собрания проходят очно на Волоколамском шоссе, 92. Регистрация и запись не нужны — просто приходите.</p>
+
+      <div class="open-banner">
+        <svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+        <div><b>Все собрания открытые.</b> Прийти может любой, кого беспокоит алкоголь, — а также родственники, друзья и все, кто хочет узнать об АА.</div>
+      </div>
+
+      <div class="themes">
+        <div class="theme"><b>Большая книга АА</b><span>Читаем и обсуждаем основной текст Анонимных Алкоголиков.</span></div>
+        <div class="theme"><b>Ежедневник АА</b><span>Размышление на сегодняшний день и обмен опытом по нему.</span></div>
+        <div class="theme theme-gold"><b>1-я среда месяца</b><span>Спикерское собрание — участник подробно рассказывает свою историю.</span></div>
+        <div class="theme theme-gold"><b>Последняя среда месяца</b><span>Рабочее собрание — группа обсуждает свои дела и служения.</span></div>
+      </div>
+
+      <h3 class="week-title">Ближайшие 7 дней</h3>
 
       <div class="week" id="week" role="list">
         <!-- заполняется скриптом из data/schedule.js -->
@@ -82,7 +98,7 @@
 
       <div class="legend">
         <span><i class="dot dot-today"></i> сегодня</span>
-        <span><i class="dot dot-open"></i> открытое собрание — можно прийти родственникам и гостям</span>
+        <span><i class="dot dot-special"></i> особая тема — спикерское или рабочее собрание</span>
       </div>
     </div>
   </section>
@@ -123,11 +139,11 @@
       </details>
       <details class="faq">
         <summary>Я не уверен(а), что я алкоголик. Можно прийти?</summary>
-        <p>Да. Решить, алкоголик вы или нет, можете только вы сами. Приходите, послушайте истории других — многие узнают в них себя. Для начала удобнее открытое собрание.</p>
+        <p>Да. Решить, алкоголик вы или нет, можете только вы сами. Приходите, послушайте истории других — многие узнают в них себя. Все наши собрания открытые, особенно подойдёт спикерское — в первую среду месяца.</p>
       </details>
       <details class="faq">
         <summary>Пьёт мой близкий. Чем вы можете помочь?</summary>
-        <p>Вы можете прийти вместе с ним на открытое собрание или позвонить нам. Для родственников и друзей алкоголиков существуют отдельные группы — <b>Ал-Анон</b>.</p>
+        <p>Вы можете прийти вместе с ним на любое наше собрание — все они открытые — или позвонить нам. Для родственников и друзей алкоголиков существуют отдельные группы — <b>Ал-Анон</b>.</p>
       </details>
     </div>
   </section>
@@ -135,7 +151,7 @@
   <!-- ═══════════════ РАЗМЫШЛЕНИЕ ДНЯ ═══════════════ -->
   <section id="reflection" class="section">
     <div class="wrap">
-      <h2>Размышление дня</h2>
+      <h2>Ежедневник АА</h2>
       <article class="reflection" id="reflection-card">
         <div class="reflection-head">
           <button class="nav-btn" id="refl-prev" aria-label="Предыдущий день">‹</button>
@@ -144,12 +160,16 @@
         </div>
         <p class="reflection-slogan" id="refl-slogan"></p>
         <h3 id="refl-title"></h3>
-        <p class="reflection-text" id="refl-text"></p>
+        <blockquote class="reflection-quote" id="refl-quote" hidden>
+          <p id="refl-quote-text"></p>
+          <cite id="refl-source"></cite>
+        </blockquote>
+        <div class="reflection-text" id="refl-text"></div>
         <button class="link-btn" id="refl-today" hidden>Вернуться к сегодняшнему дню</button>
       </article>
       <p class="muted small">
-        Официальную книгу «Размышления на каждый день» и другую литературу АА можно приобрести на собрании группы
-        или на сайте <a href="https://aamos.ru/index.php/literatura-aa" target="_blank" rel="noopener">АА Москвы</a>.
+        Ежедневник АА и другую литературу можно приобрести на собрании группы
+        или через <a href="https://aamos.ru/index.php/literatura-aa" target="_blank" rel="noopener">АА Москвы</a>.
       </p>
     </div>
   </section>
@@ -182,6 +202,10 @@
           <p class="muted">Ежедневно с 10:00 до 21:00. Подскажут ближайшую группу и время собраний.</p>
           <a class="phone" href="tel:+74952200969">+7 (495) 22-00-969</a>
         </div>
+      </div>
+      <div class="map-wrap">
+        <div id="map" class="map" role="region" aria-label="Карта: Волоколамское шоссе, 92"></div>
+        <div class="map-fallback">Карта не загрузилась — <a id="map-link" target="_blank" rel="noopener">откройте адрес в Яндекс Картах</a>.</div>
       </div>
     </div>
   </section>
@@ -225,7 +249,9 @@
 </footer>
 
 <script src="data/schedule.js"></script>
+<script src="data/daily.js"></script>
 <script src="data/reflections.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
 <script src="app.js"></script>
 </body>
 </html>

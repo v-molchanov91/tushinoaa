@@ -7,17 +7,21 @@
   var DAYS_SHORT = ['Вс', 'Пн', 'Вт', 'Ср', 'Чт', 'Пт', 'Сб'];
   var DAYS_FULL = ['Воскресенье', 'Понедельник', 'Вторник', 'Среда', 'Четверг', 'Пятница', 'Суббота'];
   var DAYS_IN = ['в воскресенье', 'в понедельник', 'во вторник', 'в среду', 'в четверг', 'в пятницу', 'в субботу'];
-  var WEEK_ORDER = [1, 2, 3, 4, 5, 6, 0];
+  var MONTHS_GEN = ['января', 'февраля', 'марта', 'апреля', 'мая', 'июня', 'июля', 'августа', 'сентября', 'октября', 'ноября', 'декабря'];
 
-  // Время считаем по Москве, где бы ни находился посетитель
+  // Время считаем по Москве, где бы ни находился посетитель.
+  // Возвращаем Date, у которого «локальные» поля = московское время.
   function moscowNow() {
-    var s = new Date().toLocaleString('en-US', { timeZone: 'Europe/Moscow' });
-    return new Date(s);
+    return new Date(new Date().toLocaleString('en-US', { timeZone: 'Europe/Moscow' }));
   }
 
   function toMinutes(hhmm) {
     var p = hhmm.split(':');
     return parseInt(p[0], 10) * 60 + parseInt(p[1], 10);
+  }
+
+  function addDays(d, n) {
+    return new Date(d.getFullYear(), d.getMonth(), d.getDate() + n);
   }
 
   function el(tag, cls, text) {
@@ -27,29 +31,37 @@
     return e;
   }
 
-  /* ── Ближайшее собрание ────────────────────────────── */
-  function findNext(now) {
-    var nowMin = now.getHours() * 60 + now.getMinutes();
-    var today = now.getDay();
-    var best = null;
-    schedule.forEach(function (m) {
-      var start = toMinutes(m.time);
-      var dur = m.duration || 90;
-      var offsetDays = (m.day - today + 7) % 7;
-      var delta = offsetDays * 1440 + start - nowMin; // минут до начала
-      if (offsetDays === 0 && delta < 0) {
-        if (nowMin < start + dur) {
-          delta = 0; // идёт сейчас
-          m = Object.assign({ live: true }, m);
-        } else {
-          delta += 7 * 1440;
-        }
-      }
-      if (!best || delta < best.delta) best = { m: m, delta: delta, offsetDays: delta === 0 ? 0 : Math.floor((nowMin + delta) / 1440) };
-    });
-    return best;
+  // Тема собрания на конкретную дату (учитывает «первая/последняя среда месяца»)
+  function topicFor(m, date) {
+    if (m.special) {
+      var daysInMonth = new Date(date.getFullYear(), date.getMonth() + 1, 0).getDate();
+      if (m.special.first && date.getDate() <= 7) return { text: m.special.first, special: true };
+      if (m.special.last && date.getDate() + 7 > daysInMonth) return { text: m.special.last, special: true };
+    }
+    return { text: m.topic, special: false };
   }
 
+  // Все собрания на ближайшие 14 дней с их датами и статусом
+  function upcoming(now) {
+    var nowMin = now.getHours() * 60 + now.getMinutes();
+    var list = [];
+    for (var i = 0; i < 14; i++) {
+      var date = addDays(now, i);
+      schedule.forEach(function (m) {
+        if (m.day !== date.getDay()) return;
+        var start = toMinutes(m.time);
+        var end = start + (m.duration || 90);
+        var status = 'future';
+        if (i === 0 && nowMin >= end) status = 'past';
+        else if (i === 0 && nowMin >= start) status = 'live';
+        list.push({ m: m, date: date, offset: i, status: status,
+          minutesTo: i * 1440 + start - nowMin, topic: topicFor(m, date) });
+      });
+    }
+    return list.sort(function (a, b) { return a.minutesTo - b.minutesTo; });
+  }
+
+  /* ── Ближайшее собрание ────────────────────────────── */
   function humanDelta(min) {
     if (min < 60) return 'через ' + min + ' мин';
     var h = Math.floor(min / 60), mm = min % 60;
@@ -59,127 +71,158 @@
 
   function renderNext() {
     var box = document.getElementById('next-meeting');
-    if (!box || !schedule.length) return;
-    var now = moscowNow();
-    var n = findNext(now);
+    if (!box) return;
+    var n = upcoming(moscowNow()).filter(function (x) { return x.status !== 'past'; })[0];
     if (!n) return;
 
-    var when;
-    if (n.m.live) when = 'Сегодня';
-    else if (n.offsetDays === 0) when = 'Сегодня';
-    else if (n.offsetDays === 1) when = 'Завтра';
-    else when = DAYS_IN[n.m.day].charAt(0).toUpperCase() + DAYS_IN[n.m.day].slice(1);
+    var when = n.offset === 0 ? 'Сегодня' : n.offset === 1 ? 'Завтра'
+      : DAYS_IN[n.date.getDay()].replace(/^./, function (c) { return c.toUpperCase(); });
+    when += ', ' + n.date.getDate() + ' ' + MONTHS_GEN[n.date.getMonth()];
 
     box.innerHTML = '';
     box.appendChild(el('div', 'next-time', n.m.time));
     var info = el('div');
-    var label = el('div', 'next-label', n.m.live ? 'Собрание идёт' : 'Ближайшее собрание');
-    if (n.m.live) label.appendChild(el('span', 'live', 'сейчас'));
+    var label = el('div', 'next-label', n.status === 'live' ? 'Собрание идёт' : 'Ближайшее собрание');
+    if (n.status === 'live') label.appendChild(el('span', 'live', 'сейчас'));
     info.appendChild(label);
-    var rel = n.m.live ? '' : humanDelta(n.delta);
+    var rel = n.status === 'live' ? '' : humanDelta(n.minutesTo);
     info.appendChild(el('div', 'next-day', when + (rel ? ' · ' + rel : '')));
-    info.appendChild(el('div', 'next-topic', n.m.topic));
+    info.appendChild(el('div', 'next-topic', n.topic.text));
     box.appendChild(info);
   }
 
-  /* ── Неделя ───────────────────────────────────────── */
+  /* ── Бар на 7 дней ─────────────────────────────────── */
   function renderWeek() {
     var week = document.getElementById('week');
     if (!week) return;
     var now = moscowNow();
-    var today = now.getDay();
-    var nowMin = now.getHours() * 60 + now.getMinutes();
+    var items = upcoming(now);
     week.innerHTML = '';
 
-    WEEK_ORDER.forEach(function (d) {
-      var meetings = schedule.filter(function (m) { return m.day === d; })
-        .sort(function (a, b) { return toMinutes(a.time) - toMinutes(b.time); });
+    for (var i = 0; i < 7; i++) {
+      var date = addDays(now, i);
+      var d = date.getDay();
+      var dayItems = items.filter(function (x) { return x.offset === i; });
+      var isToday = i === 0;
 
-      if (!meetings.length) {
-        var off = el('div', 'day off' + (d === today ? ' today' : ''));
+      var head = el('div', 'day-head');
+      head.appendChild(el('div', 'day-name', isToday ? 'Сегодня' : i === 1 ? 'Завтра' : DAYS_SHORT[d]));
+      head.appendChild(el('div', 'day-full', DAYS_FULL[d]));
+      head.appendChild(el('div', 'day-date', date.getDate() + ' ' + MONTHS_GEN[date.getMonth()]));
+
+      if (!dayItems.length) {
+        var off = el('div', 'day off' + (isToday ? ' today' : ''));
         off.setAttribute('role', 'listitem');
-        var h = el('div', 'day-head');
-        h.appendChild(el('div', 'day-name', DAYS_SHORT[d]));
-        h.appendChild(el('div', 'day-full', DAYS_FULL[d]));
-        off.appendChild(h);
+        off.appendChild(head);
         off.appendChild(el('div', 'day-off-text', 'собрания нет'));
         week.appendChild(off);
-        return;
+        continue;
       }
 
-      meetings.forEach(function (m) {
-        var card = el('div', 'day' + (d === today ? ' today' : ''));
+      dayItems.forEach(function (x) {
+        var card = el('div', 'day' + (isToday ? ' today' : '') + (x.status === 'past' ? ' past' : '') + (x.topic.special ? ' special' : ''));
         card.setAttribute('role', 'listitem');
-
-        var head = el('div', 'day-head');
-        head.appendChild(el('div', 'day-name', DAYS_SHORT[d]));
-        head.appendChild(el('div', 'day-full', DAYS_FULL[d]));
-        card.appendChild(head);
-
-        card.appendChild(el('div', 'day-time', m.time));
+        card.appendChild(head.cloneNode(true));
+        card.appendChild(el('div', 'day-time', x.m.time));
 
         var body = el('div', 'day-body');
-        body.appendChild(el('div', 'day-topic', m.topic));
-        if (m.note) body.appendChild(el('div', 'day-note', m.note));
+        body.appendChild(el('div', 'day-topic', x.topic.text));
+        if (x.m.note) body.appendChild(el('div', 'day-note', x.m.note));
         card.appendChild(body);
 
         var tags = el('div', 'day-tags');
-        var start = toMinutes(m.time);
-        if (d === today && nowMin >= start && nowMin < start + (m.duration || 90)) {
-          tags.appendChild(el('span', 'tag tag-live', 'идёт сейчас'));
-        } else if (d === today) {
-          tags.appendChild(el('span', 'tag tag-today', 'сегодня'));
-        }
-        if (m.open) tags.appendChild(el('span', 'tag tag-open', 'открытое'));
+        if (x.status === 'live') tags.appendChild(el('span', 'tag tag-live', 'идёт сейчас'));
+        else if (x.status === 'past') tags.appendChild(el('span', 'tag tag-past', 'завершилось'));
+        if (x.topic.special) tags.appendChild(el('span', 'tag tag-special', 'особое'));
         card.appendChild(tags);
 
         week.appendChild(card);
       });
-    });
+    }
   }
 
-  /* ── Размышление дня ──────────────────────────────── */
+  /* ── Ежедневник ───────────────────────────────────── */
   var reflDate = moscowNow();
-  var todayKey = dateKey(reflDate);
 
   function dateKey(d) {
     return ('0' + (d.getMonth() + 1)).slice(-2) + '-' + ('0' + d.getDate()).slice(-2);
   }
 
   function renderReflection() {
-    var byDate = window.AA_REFLECTIONS_BY_DATE || {};
-    var list = window.AA_REFLECTIONS || [];
-    var r = byDate[dateKey(reflDate)] || list[(reflDate.getDate() - 1) % list.length];
+    var daily = window.AA_DAILY || {};
+    var fallback = window.AA_REFLECTIONS || [];
+    var official = daily[dateKey(reflDate)];
+    var r = official || fallback[(reflDate.getDate() - 1) % fallback.length];
     if (!r) return;
 
-    var dateStr = reflDate.toLocaleDateString('ru-RU', { weekday: 'long', day: 'numeric', month: 'long' });
-    document.getElementById('refl-date').textContent = dateStr;
-    document.getElementById('refl-slogan').textContent = r.slogan || '';
+    document.getElementById('refl-date').textContent =
+      DAYS_FULL[reflDate.getDay()] + ', ' + reflDate.getDate() + ' ' + MONTHS_GEN[reflDate.getMonth()];
     document.getElementById('refl-title').textContent = r.title || '';
-    document.getElementById('refl-text').textContent = r.text || '';
-    document.getElementById('refl-today').hidden = dateKey(reflDate) === todayKey;
+
+    var q = document.getElementById('refl-quote');
+    q.hidden = !r.quote;
+    document.getElementById('refl-quote-text').textContent = r.quote || '';
+    document.getElementById('refl-source').textContent = r.source || '';
+
+    var textBox = document.getElementById('refl-text');
+    textBox.innerHTML = '';
+    String(r.text || '').split(/\n\s*\n/).forEach(function (p) {
+      if (p.trim()) textBox.appendChild(el('p', null, p.trim()));
+    });
+
+    document.getElementById('refl-slogan').textContent = official ? 'Ежедневник АА' : (r.slogan || 'Мысль дня');
+    document.getElementById('refl-today').hidden = dateKey(reflDate) === dateKey(moscowNow());
   }
 
   function shiftReflection(days) {
-    reflDate = new Date(reflDate.getFullYear(), reflDate.getMonth(), reflDate.getDate() + days);
+    reflDate = addDays(reflDate, days);
     renderReflection();
   }
 
-  /* ── Контакты ─────────────────────────────────────── */
+  /* ── Контакты и карта ─────────────────────────────── */
   function renderContacts() {
     function set(id, text) { var e = document.getElementById(id); if (e) e.textContent = text || ''; }
     set('c-address', group.address);
     set('c-address-hint', group.addressHint);
     set('c-phone', group.phonePretty);
+    set('hero-phone', group.phonePretty);
     var tel = 'tel:' + (group.phone || '');
-    document.getElementById('c-phone').href = tel;
-    document.getElementById('c-call').href = tel;
-    document.getElementById('c-map').href = group.mapUrl || '#';
+    ['c-phone', 'c-call', 'hero-phone'].forEach(function (id) {
+      var e = document.getElementById(id); if (e) e.href = tel;
+    });
+    // Маршрут общественным транспортом до точки в Яндекс Картах
+    document.getElementById('c-map').href =
+      'https://yandex.ru/maps/?rtext=~' + group.lat + ',' + group.lon + '&rtt=mt';
+    document.getElementById('map-link').href =
+      'https://yandex.ru/maps/?pt=' + group.lon + ',' + group.lat + '&z=17&l=map';
     if (group.telegram) {
       var tg = document.getElementById('c-tg');
       tg.href = group.telegram;
       tg.hidden = false;
     }
+  }
+
+  function renderMap() {
+    var box = document.getElementById('map');
+    if (!box || !window.L || !group.lat) return;
+    box.parentNode.classList.add('loaded');
+    var map = L.map(box, { scrollWheelZoom: false }).setView([group.lat, group.lon], 16);
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+      maxZoom: 19,
+      attribution: '&copy; участники <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>'
+    }).addTo(map);
+
+    var icon = L.divIcon({
+      className: 'aa-marker',
+      html: '<div class="aa-pin"><img src="favicon.svg" alt=""></div><span class="aa-pin-label">Волоколамское ш., 92</span>',
+      iconSize: [64, 80],
+      iconAnchor: [32, 78],
+      popupAnchor: [0, -74]
+    });
+    L.marker([group.lat, group.lon], { icon: icon, title: 'Группа АА «Тушино»' })
+      .addTo(map)
+      .bindPopup('<b>Группа АА «Тушино»</b><br>' + group.address +
+        '<br><a href="' + document.getElementById('c-map').href + '" target="_blank" rel="noopener">Построить маршрут →</a>');
   }
 
   /* ── Меню на телефоне ─────────────────────────────── */
@@ -203,12 +246,13 @@
   renderWeek();
   renderReflection();
   renderContacts();
+  renderMap();
   initMenu();
 
   document.getElementById('refl-prev').addEventListener('click', function () { shiftReflection(-1); });
   document.getElementById('refl-next').addEventListener('click', function () { shiftReflection(1); });
   document.getElementById('refl-today').addEventListener('click', function () { reflDate = moscowNow(); renderReflection(); });
 
-  // Обновляем «ближайшее собрание» раз в минуту
+  // Раз в минуту обновляем «ближайшее собрание» и бар
   setInterval(function () { renderNext(); renderWeek(); }, 60000);
 })();
