@@ -162,6 +162,14 @@
   function human(key) { var p = key.split('-'); return +p[1] + ' ' + MONTHS_GEN[+p[0] - 1]; }
   function show(box, text, ok) { $(box).innerHTML = ''; var d = document.createElement('div'); d.className = 'msg ' + (ok ? 'ok' : 'err'); d.textContent = text; $(box).appendChild(d); }
 
+  // Сохранение работает только на опубликованном сайте Netlify
+  if (!/netlify\.app$/.test(location.hostname) && !/^tushino/.test(location.hostname)) {
+    var warn = document.createElement('div');
+    warn.className = 'msg err';
+    warn.textContent = 'Это локальная копия — здесь сохранить ничего нельзя. Откройте https://tushinoaa.netlify.app/admin';
+    document.querySelector('.admin .wrap').insertBefore(warn, $('login'));
+  }
+
   try { password = sessionStorage.getItem('aa_admin_pw') || ''; } catch (e) {}
 
   function api(method, body, query) {
