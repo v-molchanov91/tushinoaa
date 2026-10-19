@@ -1,0 +1,328 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="robots" content="noindex, nofollow">
+  <title>Ежедневник — добавление дней · АА Тушино</title>
+  <link rel="icon" type="image/svg+xml" href="favicon.svg">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Lora:ital,wght@0,600;0,700;1,400&family=Golos+Text:wght@400;500;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles.css">
+  <style>
+    .admin { padding: 32px 0 64px; }
+    .admin h1 { font-family: 'Lora', serif; font-size: 1.8rem; margin-bottom: 6px; }
+    .panel { background: var(--card); border: 1px solid var(--border); border-radius: var(--radius); box-shadow: var(--shadow); padding: 22px; margin-top: 20px; }
+    .panel h2 { font-size: 1.25rem; }
+    .panel h2::after { display: none; }
+    label { display: block; font-weight: 600; font-size: .92rem; margin: 14px 0 6px; }
+    label small { font-weight: 400; color: var(--ink-soft); }
+    input[type=text], input[type=password], input[type=date], textarea {
+      width: 100%; font: inherit; color: var(--ink); background: var(--bg);
+      border: 1px solid var(--border); border-radius: 10px; padding: 10px 12px;
+    }
+    textarea { min-height: 90px; resize: vertical; line-height: 1.5; }
+    #paste { min-height: 160px; }
+    #f-text { min-height: 200px; }
+    .row { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; margin-top: 14px; }
+    .grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+    @media (max-width: 860px) { .grid2 { grid-template-columns: 1fr; } }
+    .btn-danger { background: transparent; color: #c0392b; border: 2px solid #c0392b; }
+    .btn-danger:hover { background: #c0392b; color: #fff; }
+    .msg { margin-top: 12px; padding: 10px 14px; border-radius: 10px; font-size: .95rem; }
+    .msg.ok { background: color-mix(in srgb, var(--open) 15%, transparent); color: var(--open); }
+    .msg.err { background: rgba(192,57,43,.12); color: #c0392b; }
+    .steps { margin: 8px 0 0 20px; color: var(--ink-mid); }
+    .steps li { margin: 4px 0; }
+
+    .progress { display: flex; align-items: center; gap: 12px; margin-top: 4px; }
+    .bar { flex: 1; height: 8px; background: var(--bg-alt); border-radius: 4px; overflow: hidden; }
+    .bar i { display: block; height: 100%; background: var(--blue); }
+    .months { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 16px; margin-top: 16px; }
+    .month b { display: block; font-size: .9rem; margin-bottom: 6px; }
+    .days { display: grid; grid-template-columns: repeat(7, 1fr); gap: 3px; }
+    .days button {
+      aspect-ratio: 1; border: 1px solid var(--border); background: var(--bg); color: var(--ink-soft);
+      border-radius: 6px; font: inherit; font-size: .75rem; cursor: pointer; padding: 0;
+    }
+    .days button.has { background: var(--blue); border-color: var(--blue); color: #fff; }
+    .days button.static { background: var(--blue-soft); color: var(--blue); }
+    .days button.sel { outline: 2px solid var(--gold); outline-offset: 1px; }
+    .days button.today { font-weight: 700; border-color: var(--gold); }
+    .legend2 { display: flex; gap: 16px; flex-wrap: wrap; font-size: .85rem; color: var(--ink-soft); margin-top: 10px; }
+    .legend2 i { display: inline-block; width: 12px; height: 12px; border-radius: 3px; vertical-align: -1px; margin-right: 6px; border: 1px solid var(--border); }
+    .preview { margin: 0; max-width: none; }
+  </style>
+</head>
+<body>
+<nav class="topbar">
+  <div class="wrap topbar-inner">
+    <a class="brand" href="/"><img src="favicon.svg" alt="" width="28" height="28"><span>АА Тушино</span></a>
+    <a href="/" class="muted">← на сайт</a>
+  </div>
+</nav>
+
+<main class="admin">
+  <div class="wrap">
+    <h1>Ежедневник АА — добавление дней</h1>
+    <p class="muted">Каждый день сохраняется без года (например, «19 октября»), поэтому в следующем году он покажется на сайте автоматически.</p>
+
+    <!-- Вход -->
+    <section class="panel" id="login">
+      <h2>Вход</h2>
+      <label for="pw">Пароль <small>(задаётся в настройках Netlify, переменная ADMIN_PASSWORD)</small></label>
+      <input type="password" id="pw" autocomplete="current-password">
+      <div class="row"><button class="btn btn-primary" id="login-btn">Войти</button></div>
+      <div id="login-msg"></div>
+    </section>
+
+    <div id="work" hidden>
+      <!-- Редактор дня -->
+      <section class="panel">
+        <h2>Добавить или изменить день</h2>
+        <ol class="steps">
+          <li>Выберите дату (или нажмите на день в календаре ниже).</li>
+          <li>Откройте этот день на aa-online.ru, выделите текст и скопируйте.</li>
+          <li>Вставьте в большое поле — он сам разложится по полям. Проверьте и нажмите «Сохранить».</li>
+        </ol>
+
+        <div class="row">
+          <input type="date" id="f-date" style="max-width:200px">
+          <a class="btn btn-outline" id="open-src" target="_blank" rel="noopener">Открыть этот день на aa-online.ru</a>
+        </div>
+
+        <div class="grid2">
+          <div>
+            <label for="paste">Вставьте сюда текст дня целиком</label>
+            <textarea id="paste" placeholder="«ЗАГОЛОВОК»&#10;Цитата…&#10;Источник, с. 00&#10;Текст размышления…"></textarea>
+
+            <label for="f-title">Заголовок</label>
+            <input type="text" id="f-title">
+            <label for="f-quote">Цитата</label>
+            <textarea id="f-quote"></textarea>
+            <label for="f-source">Источник <small>(каждый на своей строке)</small></label>
+            <textarea id="f-source" style="min-height:60px"></textarea>
+            <label for="f-text">Текст размышления <small>(абзацы — через пустую строку)</small></label>
+            <textarea id="f-text"></textarea>
+
+            <div class="row">
+              <button class="btn btn-primary" id="save">Сохранить</button>
+              <button class="btn btn-danger" id="del">Удалить день</button>
+            </div>
+            <div id="save-msg"></div>
+          </div>
+
+          <div>
+            <label>Как это будет выглядеть на сайте</label>
+            <article class="reflection preview">
+              <div class="reflection-head"><time id="p-date"></time></div>
+              <h3 id="p-title"></h3>
+              <blockquote class="reflection-quote" id="p-quote-box">
+                <p id="p-quote"></p>
+                <cite id="p-source"></cite>
+              </blockquote>
+              <div class="reflection-text" id="p-text"></div>
+            </article>
+          </div>
+        </div>
+      </section>
+
+      <!-- Календарь заполненности -->
+      <section class="panel">
+        <h2>Заполнено дней</h2>
+        <div class="progress"><div class="bar"><i id="bar"></i></div><b id="count">0 / 366</b></div>
+        <div class="legend2">
+          <span><i style="background:var(--blue)"></i>сохранён через эту страницу</span>
+          <span><i style="background:var(--blue-soft)"></i>есть в файле data/daily.js</span>
+          <span><i></i>ещё нет — на сайте будет только ссылка</span>
+        </div>
+        <div class="months" id="months"></div>
+      </section>
+    </div>
+  </div>
+</main>
+
+<script src="data/daily.js"></script>
+<script>
+(function () {
+  'use strict';
+  var MONTHS = ['Январь','Февраль','Март','Апрель','Май','Июнь','Июль','Август','Сентябрь','Октябрь','Ноябрь','Декабрь'];
+  var MONTHS_GEN = ['января','февраля','марта','апреля','мая','июня','июля','августа','сентября','октября','ноября','декабря'];
+  var DAYS_IN_MONTH = [31,29,31,30,31,30,31,31,30,31,30,31];
+  var API = '/api/daily';
+  var $ = function (id) { return document.getElementById(id); };
+
+  var password = '';
+  var saved = {};                         // из хранилища Netlify
+  var fromFile = window.AA_DAILY || {};   // из data/daily.js
+
+  function pad(n) { return ('0' + n).slice(-2); }
+  function keyOf(dateStr) { return dateStr.slice(5); } // "2026-10-19" → "10-19"
+  function human(key) { var p = key.split('-'); return +p[1] + ' ' + MONTHS_GEN[+p[0] - 1]; }
+  function show(box, text, ok) { $(box).innerHTML = ''; var d = document.createElement('div'); d.className = 'msg ' + (ok ? 'ok' : 'err'); d.textContent = text; $(box).appendChild(d); }
+
+  try { password = sessionStorage.getItem('aa_admin_pw') || ''; } catch (e) {}
+
+  function api(method, body, query) {
+    return fetch(API + (query || ''), {
+      method: method,
+      headers: { 'content-type': 'application/json', 'authorization': 'Bearer ' + password },
+      body: body ? JSON.stringify(body) : undefined
+    }).then(function (r) {
+      return r.json().catch(function () { return {}; }).then(function (data) {
+        if (!r.ok) throw new Error(data.error || ('Ошибка ' + r.status));
+        return data;
+      });
+    });
+  }
+
+  /* ── Вход ── */
+  function login() {
+    password = $('pw').value || password;
+    if (!password) return;
+    api('POST', { check: true }).then(function () {
+      try { sessionStorage.setItem('aa_admin_pw', password); } catch (e) {}
+      $('login').hidden = true;
+      $('work').hidden = false;
+      return loadSaved();
+    }).catch(function (e) {
+      try { sessionStorage.removeItem('aa_admin_pw'); } catch (er) {}
+      show('login-msg', e.message === 'Failed to fetch' ? 'Нет связи с сервером. Страница работает только на опубликованном сайте Netlify.' : e.message, false);
+    });
+  }
+  $('login-btn').addEventListener('click', login);
+  $('pw').addEventListener('keydown', function (e) { if (e.key === 'Enter') login(); });
+  if (password) { $('pw').value = password; login(); }
+
+  function loadSaved() {
+    return fetch(API, { cache: 'no-store' }).then(function (r) { return r.json(); }).then(function (data) {
+      saved = data || {};
+      renderCalendar();
+      loadDay();
+    });
+  }
+
+  /* ── Разбор вставленного текста ── */
+  // Строка источника: «…, с. 27», «стр. 27», «p. 21–22»
+  var SOURCE_RE = /(^|[\s,(])(с|стр|p|pp)\.\s*\d/i;
+  function parsePasted(raw) {
+    var lines = raw.replace(/\r/g, '').split('\n').map(function (l) { return l.trim(); }).filter(Boolean);
+    if (lines.length && /^ежедневник\s+аа/i.test(lines[0])) lines.shift();     // «Ежедневник АА — 19 октября»
+    if (!lines.length) return null;
+    var title = lines.shift();
+    var firstSrc = -1, lastSrc = -1;
+    for (var i = 0; i < lines.length; i++) {
+      if (lines[i].length < 160 && SOURCE_RE.test(lines[i])) {
+        if (firstSrc < 0) firstSrc = i;
+        lastSrc = i;
+      } else if (firstSrc >= 0) break;
+    }
+    if (firstSrc < 0) return { title: title, quote: '', source: '', text: lines.join('\n\n') };
+    return {
+      title: title,
+      quote: lines.slice(0, firstSrc).join(' '),
+      source: lines.slice(firstSrc, lastSrc + 1).join('\n'),
+      text: lines.slice(lastSrc + 1).join('\n\n')
+    };
+  }
+  $('paste').addEventListener('input', function () {
+    var r = parsePasted(this.value);
+    if (!r) return;
+    $('f-title').value = r.title; $('f-quote').value = r.quote;
+    $('f-source').value = r.source; $('f-text').value = r.text;
+    renderPreview();
+  });
+
+  /* ── Выбор дня ── */
+  function today() {
+    var d = new Date(new Date().toLocaleString('en-US', { timeZone: 'Europe/Moscow' }));
+    return d.getFullYear() + '-' + pad(d.getMonth() + 1) + '-' + pad(d.getDate());
+  }
+  $('f-date').value = today();
+
+  function loadDay() {
+    var key = keyOf($('f-date').value || today());
+    var e = saved[key] || fromFile[key] || {};
+    $('f-title').value = e.title || ''; $('f-quote').value = e.quote || '';
+    $('f-source').value = e.source || ''; $('f-text').value = e.text || '';
+    $('paste').value = '';
+    $('save-msg').innerHTML = '';
+    var p = key.split('-');
+    $('open-src').href = 'https://aa-online.ru/ezhednevnik-aa/?aa_day=' + (+p[1]) + '&aa_month=' + (+p[0]);
+    $('del').hidden = !saved[key];
+    renderPreview();
+    renderCalendar();
+  }
+  $('f-date').addEventListener('change', loadDay);
+
+  /* ── Предпросмотр ── */
+  function renderPreview() {
+    $('p-date').textContent = human(keyOf($('f-date').value || today()));
+    $('p-title').textContent = $('f-title').value;
+    $('p-quote').textContent = $('f-quote').value;
+    $('p-source').textContent = $('f-source').value;
+    $('p-quote-box').hidden = !$('f-quote').value.trim();
+    var box = $('p-text'); box.innerHTML = '';
+    $('f-text').value.split(/\n\s*\n/).forEach(function (t) {
+      if (t.trim()) { var p = document.createElement('p'); p.textContent = t.trim(); box.appendChild(p); }
+    });
+  }
+  ['f-title', 'f-quote', 'f-source', 'f-text'].forEach(function (id) { $(id).addEventListener('input', renderPreview); });
+
+  /* ── Сохранение / удаление ── */
+  $('save').addEventListener('click', function () {
+    var key = keyOf($('f-date').value);
+    var entry = { key: key, title: $('f-title').value, quote: $('f-quote').value, source: $('f-source').value, text: $('f-text').value };
+    api('POST', entry).then(function (res) {
+      delete entry.key;
+      saved[key] = entry;
+      show('save-msg', 'Сохранено: ' + human(key) + '. Всего дней: ' + res.count + '.', true);
+      $('del').hidden = false;
+      renderCalendar();
+    }).catch(function (e) { show('save-msg', e.message, false); });
+  });
+  $('del').addEventListener('click', function () {
+    var key = keyOf($('f-date').value);
+    if (!confirm('Удалить текст на ' + human(key) + '?')) return;
+    api('DELETE', null, '?key=' + key).then(function () {
+      delete saved[key];
+      loadDay();
+      show('save-msg', 'Удалено: ' + human(key) + '.', true);
+    }).catch(function (e) { show('save-msg', e.message, false); });
+  });
+
+  /* ── Календарь ── */
+  function renderCalendar() {
+    var box = $('months'); box.innerHTML = '';
+    var sel = keyOf($('f-date').value || today()), now = keyOf(today());
+    var total = 0;
+    for (var m = 1; m <= 12; m++) {
+      var wrap = document.createElement('div'); wrap.className = 'month';
+      var b = document.createElement('b'); b.textContent = MONTHS[m - 1]; wrap.appendChild(b);
+      var days = document.createElement('div'); days.className = 'days';
+      for (var d = 1; d <= DAYS_IN_MONTH[m - 1]; d++) {
+        var key = pad(m) + '-' + pad(d);
+        var btn = document.createElement('button');
+        btn.textContent = d; btn.type = 'button'; btn.title = human(key);
+        if (saved[key]) { btn.className = 'has'; total++; }
+        else if (fromFile[key]) { btn.className = 'static'; total++; }
+        if (key === sel) btn.className += ' sel';
+        if (key === now) btn.className += ' today';
+        btn.addEventListener('click', (function (k) { return function () {
+          // 29 февраля есть только в високосный год — подставляем 2028
+          $('f-date').value = (k === '02-29' ? '2028' : $('f-date').value.slice(0, 4)) + '-' + k;
+          loadDay();
+          window.scrollTo({ top: 0, behavior: 'smooth' });
+        }; })(key));
+        days.appendChild(btn);
+      }
+      wrap.appendChild(days); box.appendChild(wrap);
+    }
+    $('count').textContent = total + ' / 366';
+    $('bar').style.width = (total / 366 * 100) + '%';
+  }
+})();
+</script>
+</body>
+</html>

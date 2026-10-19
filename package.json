@@ -1,0 +1,8 @@
+{
+  "name": "tushinoaa",
+  "private": true,
+  "description": "Сайт группы АА «Тушино»",
+  "dependencies": {
+    "@netlify/blobs": "^8.1.0"
+  }
+}

@@ -256,6 +256,17 @@
   document.getElementById('refl-next').addEventListener('click', function () { shiftReflection(1); });
   document.getElementById('refl-today').addEventListener('click', function () { reflDate = moscowNow(); renderReflection(); });
 
+  // Дни, добавленные через /admin, хранятся на Netlify — подгружаем и дополняем data/daily.js
+  if (window.fetch && location.protocol.indexOf('http') === 0) {
+    fetch('/api/daily')
+      .then(function (res) { return res.ok ? res.json() : {}; })
+      .then(function (saved) {
+        window.AA_DAILY = Object.assign({}, window.AA_DAILY || {}, saved || {});
+        renderReflection();
+      })
+      .catch(function () { /* хранилище недоступно — остаёмся на data/daily.js */ });
+  }
+
   // Раз в минуту обновляем «ближайшее собрание» и бар
   setInterval(function () { renderNext(); renderWeek(); }, 60000);
 })();

@@ -1,6 +1,12 @@
-# Настройки Netlify: сайт статический, сборка не нужна
+# Настройки Netlify. Сборка страниц не нужна — сайт статический,
+# а папка netlify/functions содержит серверную часть для /admin.
 [build]
   publish = "."
+  command = ""
+
+[functions]
+  directory = "netlify/functions"
+  node_bundler = "esbuild"
 
 [[headers]]
   for = "/*"
@@ -12,3 +18,10 @@
   for = "/data/*"
   [headers.values]
     Cache-Control = "public, max-age=300"
+
+# Админку не показываем поисковикам
+[[headers]]
+  for = "/admin*"
+  [headers.values]
+    X-Robots-Tag = "noindex, nofollow"
+    Cache-Control = "no-store"
