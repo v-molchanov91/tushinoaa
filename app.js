@@ -175,7 +175,7 @@
     // Кнопка на официальный текст ежедневника за выбранную дату
     var isToday = dateKey(reflDate) === dateKey(moscowNow());
     document.getElementById('refl-read').hidden = !!official;
-    document.getElementById('refl-link').href = 'https://aa-online.ru/ezhednevnik-aa-read/?aa_day=' +
+    document.getElementById('refl-link').href = 'https://aa-online.ru/ezhednevnik-aa/?aa_day=' +
       reflDate.getDate() + '&aa_month=' + (reflDate.getMonth() + 1);
     document.getElementById('refl-link-text').textContent = 'Читать Ежедневник АА ' +
       (isToday ? 'на сегодня' : 'на ' + reflDate.getDate() + ' ' + MONTHS_GEN[reflDate.getMonth()]);
