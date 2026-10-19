@@ -212,6 +212,8 @@
     var map = L.map(box, { scrollWheelZoom: false }).setView([group.lat, group.lon], 16);
     L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
       maxZoom: 19,
+      // OpenStreetMap требует, чтобы браузер сообщал адрес сайта, иначе отвечает «Access blocked»
+      referrerPolicy: 'strict-origin-when-cross-origin',
       attribution: '&copy; участники <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>'
     }).addTo(map);
 
