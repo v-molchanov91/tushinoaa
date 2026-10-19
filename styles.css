@@ -394,3 +394,4 @@ h3 { font-family: 'Lora', Georgia, serif; font-size: 1.2rem; margin-bottom: 8px;
 .reflection-quote cite { display: block; margin-top: 6px; font-style: normal; font-size: .85rem; color: var(--ink-soft); }
 .reflection-text p + p { margin-top: 12px; }
 .reflection-read { display: flex; flex-wrap: wrap; align-items: center; gap: 10px 16px; margin-top: 22px; padding-top: 20px; border-top: 1px dashed var(--border); }
+.reflection-quote cite { white-space: pre-line; }

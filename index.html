@@ -158,19 +158,20 @@
           <time id="refl-date"></time>
           <button class="nav-btn" id="refl-next" aria-label="Следующий день">›</button>
         </div>
-        <p class="reflection-slogan" id="refl-slogan"></p>
-        <h3 id="refl-title"></h3>
-        <blockquote class="reflection-quote" id="refl-quote" hidden>
-          <p id="refl-quote-text"></p>
-          <cite id="refl-source"></cite>
-        </blockquote>
-        <div class="reflection-text" id="refl-text"></div>
+        <div id="refl-body" hidden>
+          <h3 id="refl-title"></h3>
+          <blockquote class="reflection-quote" id="refl-quote" hidden>
+            <p id="refl-quote-text"></p>
+            <cite id="refl-source"></cite>
+          </blockquote>
+          <div class="reflection-text" id="refl-text"></div>
+        </div>
+        <p class="muted" id="refl-empty" hidden>Текст Ежедневника АА на этот день откроется на сайте aa-online.ru.</p>
         <div class="reflection-read" id="refl-read">
           <a class="btn btn-primary" id="refl-link" target="_blank" rel="noopener">
             <svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M2 4h6a4 4 0 0 1 4 4v13a3 3 0 0 0-3-3H2z"/><path d="M22 4h-6a4 4 0 0 0-4 4v13a3 3 0 0 1 3-3h7z"/></svg>
             <span id="refl-link-text">Читать Ежедневник АА на сегодня</span>
           </a>
-          <span class="muted small">Официальный текст на сайте aa-online.ru</span>
         </div>
         <button class="link-btn" id="refl-today" hidden>Вернуться к сегодняшнему дню</button>
       </article>
@@ -257,7 +258,6 @@
 
 <script src="data/schedule.js"></script>
 <script src="data/daily.js"></script>
-<script src="data/reflections.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
 <script src="app.js"></script>
 </body>

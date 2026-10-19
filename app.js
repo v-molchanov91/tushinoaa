@@ -149,37 +149,32 @@
   }
 
   function renderReflection() {
-    var daily = window.AA_DAILY || {};
-    var fallback = window.AA_REFLECTIONS || [];
-    var official = daily[dateKey(reflDate)];
-    var r = official || fallback[(reflDate.getDate() - 1) % fallback.length];
-    if (!r) return;
+    var r = (window.AA_DAILY || {})[dateKey(reflDate)];
+    var isToday = dateKey(reflDate) === dateKey(moscowNow());
 
     document.getElementById('refl-date').textContent =
       DAYS_FULL[reflDate.getDay()] + ', ' + reflDate.getDate() + ' ' + MONTHS_GEN[reflDate.getMonth()];
-    document.getElementById('refl-title').textContent = r.title || '';
 
-    var q = document.getElementById('refl-quote');
-    q.hidden = !r.quote;
-    document.getElementById('refl-quote-text').textContent = r.quote || '';
-    document.getElementById('refl-source').textContent = r.source || '';
+    // Текст показываем только из data/daily.js; если его нет — только ссылка на официальный текст
+    document.getElementById('refl-body').hidden = !r;
+    document.getElementById('refl-empty').hidden = !!r;
+    if (r) {
+      document.getElementById('refl-title').textContent = r.title || '';
+      document.getElementById('refl-quote').hidden = !r.quote;
+      document.getElementById('refl-quote-text').textContent = r.quote || '';
+      document.getElementById('refl-source').textContent = r.source || '';
+      var textBox = document.getElementById('refl-text');
+      textBox.innerHTML = '';
+      String(r.text || '').split(/\n\s*\n/).forEach(function (p) {
+        if (p.trim()) textBox.appendChild(el('p', null, p.trim()));
+      });
+    }
 
-    var textBox = document.getElementById('refl-text');
-    textBox.innerHTML = '';
-    String(r.text || '').split(/\n\s*\n/).forEach(function (p) {
-      if (p.trim()) textBox.appendChild(el('p', null, p.trim()));
-    });
-
-    document.getElementById('refl-slogan').textContent = official ? 'Ежедневник АА' : 'Мысль дня от группы · ' + (r.slogan || '');
-
-    // Кнопка на официальный текст ежедневника за выбранную дату
-    var isToday = dateKey(reflDate) === dateKey(moscowNow());
-    document.getElementById('refl-read').hidden = !!official;
     document.getElementById('refl-link').href = 'https://aa-online.ru/ezhednevnik-aa/?aa_day=' +
       reflDate.getDate() + '&aa_month=' + (reflDate.getMonth() + 1);
-    document.getElementById('refl-link-text').textContent = 'Читать Ежедневник АА ' +
-      (isToday ? 'на сегодня' : 'на ' + reflDate.getDate() + ' ' + MONTHS_GEN[reflDate.getMonth()]);
-    document.getElementById('refl-today').hidden = dateKey(reflDate) === dateKey(moscowNow());
+    document.getElementById('refl-link-text').textContent = (r ? 'Открыть на aa-online.ru' : 'Читать Ежедневник АА ' +
+      (isToday ? 'на сегодня' : 'на ' + reflDate.getDate() + ' ' + MONTHS_GEN[reflDate.getMonth()]));
+    document.getElementById('refl-today').hidden = isToday;
   }
 
   function shiftReflection(days) {
