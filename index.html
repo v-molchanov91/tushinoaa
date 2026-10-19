@@ -1,0 +1,231 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>АА Тушино — собрания Анонимных Алкоголиков в Москве</title>
+  <meta name="description" content="Группа Анонимных Алкоголиков «Тушино». Москва, Волоколамское шоссе, 92. Расписание собраний, тематика, размышление дня, контакты.">
+  <meta name="theme-color" content="#1d5fae">
+
+  <meta property="og:type" content="website">
+  <meta property="og:title" content="АА Тушино — группа Анонимных Алкоголиков в Москве">
+  <meta property="og:description" content="Собрания группы «Тушино» на Волоколамском шоссе, 92. Пн, Вт, Ср, Сб, Вс — приходите.">
+  <meta property="og:locale" content="ru_RU">
+
+  <link rel="icon" type="image/svg+xml" href="favicon.svg">
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Lora:ital,wght@0,400;0,600;0,700;1,400&family=Golos+Text:wght@400;500;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+<!-- ═══════════════ ВЕРХНЯЯ ПАНЕЛЬ ═══════════════ -->
+<nav class="topbar" aria-label="Разделы сайта">
+  <div class="wrap topbar-inner">
+    <a class="brand" href="#top">
+      <img src="favicon.svg" alt="" width="28" height="28">
+      <span>АА Тушино</span>
+    </a>
+    <button class="menu-btn" aria-expanded="false" aria-controls="menu" aria-label="Меню">
+      <span></span><span></span><span></span>
+    </button>
+    <ul id="menu" class="menu">
+      <li><a href="#schedule">Расписание</a></li>
+      <li><a href="#about">Что такое АА</a></li>
+      <li><a href="#reflection">Размышление дня</a></li>
+      <li><a href="#contacts">Контакты</a></li>
+      <li><a href="#links">Ссылки</a></li>
+    </ul>
+  </div>
+</nav>
+
+<!-- ═══════════════ ШАПКА ═══════════════ -->
+<header id="top" class="hero">
+  <div class="wrap hero-inner">
+    <svg class="emblem" viewBox="0 0 200 200" role="img" aria-label="Эмблема: круг и треугольник">
+      <defs>
+        <path id="pL" d="M 30,155 L 100,25"/>
+        <path id="pR" d="M 100,25 L 170,155"/>
+        <path id="pB" d="M 30,155 L 170,155"/>
+      </defs>
+      <circle cx="100" cy="100" r="93" fill="none" stroke="#fff" stroke-width="6"/>
+      <polygon points="100,25 170,155 30,155" fill="rgba(255,255,255,.08)" stroke="#fff" stroke-width="5" stroke-linejoin="round"/>
+      <text x="100" y="122" text-anchor="middle" font-family="Lora, Georgia, serif" font-size="36" font-weight="700" fill="#fff" letter-spacing="2">АА</text>
+      <g font-family="Golos Text, sans-serif" font-weight="500" fill="rgba(255,255,255,.85)">
+        <text font-size="13" letter-spacing="1.5"><textPath href="#pL" startOffset="8%">ЕДИНСТВО</textPath></text>
+        <text font-size="13" letter-spacing="1.5"><textPath href="#pR" startOffset="8%">СЛУЖЕНИЕ</textPath></text>
+        <text font-size="12" letter-spacing="1.2"><textPath href="#pB" startOffset="10%">ВЫЗДОРОВЛЕНИЕ</textPath></text>
+      </g>
+    </svg>
+    <h1>Группа Анонимных Алкоголиков «Тушино»</h1>
+    <p class="tagline">Место, куда можно прийти и быть услышанным.</p>
+
+    <div class="next-card" id="next-meeting" aria-live="polite">
+      <!-- заполняется скриптом -->
+    </div>
+  </div>
+</header>
+
+<main>
+
+  <!-- ═══════════════ РАСПИСАНИЕ ═══════════════ -->
+  <section id="schedule" class="section">
+    <div class="wrap">
+      <h2>Расписание собраний</h2>
+      <p class="lead">Собрания проходят очно. Регистрация и запись не нужны — просто приходите.</p>
+
+      <div class="week" id="week" role="list">
+        <!-- заполняется скриптом из data/schedule.js -->
+      </div>
+
+      <div class="legend">
+        <span><i class="dot dot-today"></i> сегодня</span>
+        <span><i class="dot dot-open"></i> открытое собрание — можно прийти родственникам и гостям</span>
+      </div>
+    </div>
+  </section>
+
+  <!-- ═══════════════ ЧТО ТАКОЕ АА ═══════════════ -->
+  <section id="about" class="section section-alt">
+    <div class="wrap">
+      <h2>Что такое АА</h2>
+      <div class="about-grid">
+        <div class="about-text">
+          <p><strong>Анонимные Алкоголики (АА)</strong> — всемирное сообщество людей, которые помогают друг другу жить без алкоголя. Мы встречаемся, рассказываем о своём опыте и поддерживаем тех, кто только пришёл.</p>
+          <p>Чтобы стать участником, нужно лишь одно — желание бросить пить. Ни анкет, ни взносов: группа живёт на добровольные пожертвования самих участников.</p>
+          <p>АА не связаны ни с религией, ни с политикой, ни с какими-либо организациями или клиниками. Мы не лечим и не даём советов — мы делимся тем, что помогло нам самим оставаться трезвыми.</p>
+        </div>
+        <ul class="facts">
+          <li>
+            <b>Анонимно</b>
+            <span>Мы не спрашиваем фамилий и документов. Что сказано на собрании — остаётся на собрании.</span>
+          </li>
+          <li>
+            <b>Бесплатно</b>
+            <span>Никаких взносов и оплаты. Добровольная «шапка» покрывает аренду и чай.</span>
+          </li>
+          <li>
+            <b>Без обязательств</b>
+            <span>Можно просто посидеть и послушать. Говорить необязательно.</span>
+          </li>
+          <li>
+            <b>12 Шагов</b>
+            <span>Программа выздоровления, проверенная миллионами людей по всему миру с 1935 года.</span>
+          </li>
+        </ul>
+      </div>
+
+      <details class="faq">
+        <summary>Как проходит собрание?</summary>
+        <p>Собрание длится около полутора часов. Ведущий открывает его, читается вступительный текст, затем объявляется тема. Участники по желанию делятся своим опытом — по очереди, не перебивая и не давая советов. В конце — добровольная «шапка» и общая молитва о душевном покое (по желанию).</p>
+      </details>
+      <details class="faq">
+        <summary>Я не уверен(а), что я алкоголик. Можно прийти?</summary>
+        <p>Да. Решить, алкоголик вы или нет, можете только вы сами. Приходите, послушайте истории других — многие узнают в них себя. Для начала удобнее открытое собрание.</p>
+      </details>
+      <details class="faq">
+        <summary>Пьёт мой близкий. Чем вы можете помочь?</summary>
+        <p>Вы можете прийти вместе с ним на открытое собрание или позвонить нам. Для родственников и друзей алкоголиков существуют отдельные группы — <b>Ал-Анон</b>.</p>
+      </details>
+    </div>
+  </section>
+
+  <!-- ═══════════════ РАЗМЫШЛЕНИЕ ДНЯ ═══════════════ -->
+  <section id="reflection" class="section">
+    <div class="wrap">
+      <h2>Размышление дня</h2>
+      <article class="reflection" id="reflection-card">
+        <div class="reflection-head">
+          <button class="nav-btn" id="refl-prev" aria-label="Предыдущий день">‹</button>
+          <time id="refl-date"></time>
+          <button class="nav-btn" id="refl-next" aria-label="Следующий день">›</button>
+        </div>
+        <p class="reflection-slogan" id="refl-slogan"></p>
+        <h3 id="refl-title"></h3>
+        <p class="reflection-text" id="refl-text"></p>
+        <button class="link-btn" id="refl-today" hidden>Вернуться к сегодняшнему дню</button>
+      </article>
+      <p class="muted small">
+        Официальную книгу «Размышления на каждый день» и другую литературу АА можно приобрести на собрании группы
+        или на сайте <a href="https://aamos.ru/index.php/literatura-aa" target="_blank" rel="noopener">АА Москвы</a>.
+      </p>
+    </div>
+  </section>
+
+  <!-- ═══════════════ КОНТАКТЫ ═══════════════ -->
+  <section id="contacts" class="section section-alt">
+    <div class="wrap">
+      <h2>Контакты</h2>
+      <div class="contacts-grid">
+        <div class="card">
+          <h3>Адрес</h3>
+          <p class="big" id="c-address"></p>
+          <p class="muted" id="c-address-hint"></p>
+          <a class="btn btn-primary" id="c-map" target="_blank" rel="noopener">
+            <svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7z"/><circle cx="12" cy="9" r="2.5"/></svg>
+            Построить маршрут
+          </a>
+        </div>
+        <div class="card">
+          <h3>Телефон группы</h3>
+          <p class="muted">Хотите сначала поговорить или задать вопрос? Позвоните — мы рады ответить.</p>
+          <a class="phone" id="c-phone"></a>
+          <div class="btn-row">
+            <a class="btn btn-primary" id="c-call">Позвонить</a>
+            <a class="btn btn-outline" id="c-tg" target="_blank" rel="noopener" hidden>Telegram</a>
+          </div>
+        </div>
+        <div class="card card-accent">
+          <h3>Единый телефон АА Москвы</h3>
+          <p class="muted">Ежедневно с 10:00 до 21:00. Подскажут ближайшую группу и время собраний.</p>
+          <a class="phone" href="tel:+74952200969">+7 (495) 22-00-969</a>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ═══════════════ ССЫЛКИ ═══════════════ -->
+  <section id="links" class="section">
+    <div class="wrap">
+      <h2>Полезные ссылки</h2>
+      <div class="links-grid">
+        <a class="link-card" href="https://aarus.ru/" target="_blank" rel="noopener">
+          <b>АА России</b>
+          <span>Содружество Анонимных Алкоголиков России: группы по всей стране, литература, новости.</span>
+          <em>aarus.ru →</em>
+        </a>
+        <a class="link-card" href="https://aamos.ru/" target="_blank" rel="noopener">
+          <b>АА Москвы и области</b>
+          <span>Расписание всех групп Москвы и Подмосковья, информация для новичков.</span>
+          <em>aamos.ru →</em>
+        </a>
+        <a class="link-card" href="https://aamos.ru/index.php/groups-open" target="_blank" rel="noopener">
+          <b>Все группы Москвы</b>
+          <span>Если вам неудобно наше время — найдите собрание рядом с домом.</span>
+          <em>aamos.ru/groups →</em>
+        </a>
+        <a class="link-card" href="https://www.aa.org/" target="_blank" rel="noopener">
+          <b>AA World Services</b>
+          <span>Всемирная служба АА (на английском).</span>
+          <em>aa.org →</em>
+        </a>
+      </div>
+    </div>
+  </section>
+
+</main>
+
+<footer class="footer">
+  <div class="wrap">
+    <p class="footer-motto">«Боже, дай мне разум и душевный покой принять то, что я не в силах изменить, мужество изменить то, что могу, и мудрость отличить одно от другого».</p>
+    <p class="muted small">Сайт группы «Тушино». Мы не выступаем от имени Содружества АА в целом. Сайт не использует cookies и счётчики.</p>
+  </div>
+</footer>
+
+<script src="data/schedule.js"></script>
+<script src="data/reflections.js"></script>
+<script src="app.js"></script>
+</body>
+</html>
