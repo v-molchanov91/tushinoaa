@@ -84,6 +84,13 @@ jobs:
           test -n "$ADMIN_PASSWORD" || { echo "Не задан секрет ADMIN_PASSWORD"; exit 1; }
           php -r 'file_put_contents("api/config.php", "<?php return [\"password_hash\" => " . var_export(password_hash(getenv("ADMIN_PASSWORD"), PASSWORD_DEFAULT), true) . "];\n");'
 
+      - name: Номер версии у CSS и JS (чтобы браузеры сразу брали свежие файлы)
+        if: env.FTP_SERVER != ''
+        run: |
+          V=${GITHUB_SHA::8}
+          sed -i -E "s#(href|src)=\"((assets/|data/)?[A-Za-z0-9_./-]+\.(css|js))\"#\1=\"\2?v=$V\"#g" index.html admin.html
+          grep -oE '(href|src)="[^"]+\?v=[^"]+"' index.html admin.html
+
       - name: Загрузка по FTP
         if: env.FTP_SERVER != ''
         uses: SamKirkland/FTP-Deploy-Action@v4.3.5
