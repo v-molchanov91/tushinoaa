@@ -35,8 +35,7 @@ jobs:
 
       - name: Запуск PHP ${{ matrix.php }}
         run: |
-          php -r 'file_put_contents("api/config.php", "<?php return [\"password_hash\" => " . var_export(password_hash("test-pass", PASSWORD_DEFAULT), true) . "];
-");'
+          php -r 'file_put_contents("api/config.php", "<?php return [\"password_hash\" => " . var_export(password_hash("test-pass", PASSWORD_DEFAULT), true) . "];\n");'
           docker run -d --name php -p 8080:8080 -v "$PWD:/app" -w /app php:${{ matrix.php }}-cli php -S 0.0.0.0:8080 -t /app
           sleep 3
           docker exec php php -v
