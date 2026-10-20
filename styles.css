@@ -394,3 +394,7 @@ h3 { font-family: 'Lora', Georgia, serif; font-size: 1.2rem; margin-bottom: 8px;
 .reflection-text p + p { margin-top: 12px; }
 .reflection-read { display: flex; flex-wrap: wrap; align-items: center; gap: 10px 16px; margin-top: 22px; padding-top: 20px; border-top: 1px dashed var(--border); }
 .reflection-quote cite { white-space: pre-line; }
+
+/* Кнопки чатов — одинаковой ширины */
+.chat-btns { width: 100%; }
+.chat-btns .btn { flex: 1 1 0; min-width: 120px; align-self: stretch; }
