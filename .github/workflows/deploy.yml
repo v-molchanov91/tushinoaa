@@ -1,12 +1,13 @@
 # Проверка и публикация сайта на хостинг Beget по FTP.
 #
 # Нужные секреты (GitHub → репозиторий → Settings → Secrets and variables → Actions):
-#   FTP_SERVER      — адрес FTP-сервера из панели Beget (раздел FTP)
+#   FTP_SERVER      — адрес FTP-сервера Beget: <логин>.beget.tech
 #   FTP_USERNAME    — логин FTP
 #   FTP_PASSWORD    — пароль FTP
 #   ADMIN_PASSWORD  — пароль для страницы /admin
-# И переменная (вкладка Variables):
-#   FTP_DIR         — папка сайта на хостинге, например aa-tushino.ru/public_html/
+# Необязательная переменная (вкладка Variables):
+#   FTP_DIR — папка сайта относительно корня FTP-аккаунта (по умолчанию ./ —
+#             FTP-аккаунт сразу смотрит в public_html сайта)
 #
 # Пока секретов нет, выполняется только проверка, публикация пропускается.
 
@@ -85,7 +86,7 @@ jobs:
           server: ${{ secrets.FTP_SERVER }}
           username: ${{ secrets.FTP_USERNAME }}
           password: ${{ secrets.FTP_PASSWORD }}
-          server-dir: ${{ vars.FTP_DIR || 'aa-tushino.ru/public_html/' }}
+          server-dir: ${{ vars.FTP_DIR || './' }}
           exclude: |
             **/.git*
             **/.git*/**
