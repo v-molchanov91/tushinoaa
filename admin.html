@@ -6,9 +6,7 @@
   <meta name="robots" content="noindex, nofollow">
   <title>Ежедневник — добавление дней · АА Тушино</title>
   <link rel="icon" type="image/svg+xml" href="favicon.svg">
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Lora:ital,wght@0,600;0,700;1,400&family=Golos+Text:wght@400;500;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="assets/fonts.css">
   <link rel="stylesheet" href="styles.css">
   <style>
     .admin { padding: 32px 0 64px; }
@@ -150,7 +148,7 @@
   var MONTHS = ['Январь','Февраль','Март','Апрель','Май','Июнь','Июль','Август','Сентябрь','Октябрь','Ноябрь','Декабрь'];
   var MONTHS_GEN = ['января','февраля','марта','апреля','мая','июня','июля','августа','сентября','октября','ноября','декабря'];
   var DAYS_IN_MONTH = [31,29,31,30,31,30,31,31,30,31,30,31];
-  var API = '/api/daily';
+  var API = /netlify\.app$/.test(location.hostname) ? '/api/daily' : '/api/daily.php';
   var $ = function (id) { return document.getElementById(id); };
 
   var password = '';
@@ -163,10 +161,10 @@
   function show(box, text, ok) { $(box).innerHTML = ''; var d = document.createElement('div'); d.className = 'msg ' + (ok ? 'ok' : 'err'); d.textContent = text; $(box).appendChild(d); }
 
   // Сохранение работает только на опубликованном сайте Netlify
-  if (!/netlify\.app$/.test(location.hostname) && !/^tushino/.test(location.hostname)) {
+  if (/^(localhost|127\.0\.0\.1|\[::1\])$/.test(location.hostname) || location.protocol === 'file:') {
     var warn = document.createElement('div');
     warn.className = 'msg err';
-    warn.textContent = 'Это локальная копия — здесь сохранить ничего нельзя. Откройте https://tushinoaa.netlify.app/admin';
+    warn.textContent = 'Это локальная копия — здесь сохранить ничего нельзя. Откройте админку на опубликованном сайте.';
     document.querySelector('.admin .wrap').insertBefore(warn, $('login'));
   }
 
@@ -175,7 +173,7 @@
   function api(method, body, query) {
     return fetch(API + (query || ''), {
       method: method,
-      headers: { 'content-type': 'application/json', 'authorization': 'Bearer ' + password },
+      headers: { 'content-type': 'application/json', 'authorization': 'Bearer ' + password, 'x-admin-password': password },
       body: body ? JSON.stringify(body) : undefined
     }).then(function (r) {
       return r.json().catch(function () { return {}; }).then(function (data) {
@@ -214,6 +212,9 @@
   /* ── Разбор вставленного текста ── */
   // Строка источника: «…, с. 27», «стр. 27», «p. 21–22»
   var SOURCE_RE = /(^|[\s,(])(с|стр|p|pp)\.\s*\d/i;
+  // …или строка начинается с названия книги АА (номер страницы бывает не указан)
+  var BOOK_RE = /^(Двенадцать Шагов|Анонимные Алкоголики|Как это видит Билл|Пришли к убеждению|Язык сердца|Жизнь трезвыми|As Bill Sees It|Twelve Steps|Alcoholics Anonymous|Came to Believe|The Language of the Heart|Living Sober)/i;
+  function isSource(line) { return line.length < 160 && (SOURCE_RE.test(line) || BOOK_RE.test(line)); }
   function parsePasted(raw) {
     var lines = raw.replace(/\r/g, '').split('\n').map(function (l) { return l.trim(); }).filter(Boolean);
     if (lines.length && /^ежедневник\s+аа/i.test(lines[0])) lines.shift();     // «Ежедневник АА — 19 октября»
@@ -221,7 +222,7 @@
     var title = lines.shift();
     var firstSrc = -1, lastSrc = -1;
     for (var i = 0; i < lines.length; i++) {
-      if (lines[i].length < 160 && SOURCE_RE.test(lines[i])) {
+      if (isSource(lines[i])) {
         if (firstSrc < 0) firstSrc = i;
         lastSrc = i;
       } else if (firstSrc >= 0) break;

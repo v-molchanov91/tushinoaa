@@ -1,2 +1,5 @@
 node_modules/
 .netlify/
+api/config.php
+api/storage/*.json
+backup/

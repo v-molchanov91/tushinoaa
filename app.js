@@ -260,7 +260,8 @@
 
   // Дни, добавленные через /admin, хранятся на Netlify — подгружаем и дополняем data/daily.js
   if (window.fetch && location.protocol.indexOf('http') === 0) {
-    fetch('/api/daily')
+    // На Netlify хранилище — функция /api/daily, на обычном хостинге — api/daily.php
+    fetch(/netlify\.app$/.test(location.hostname) ? '/api/daily' : '/api/daily.php')
       .then(function (res) { return res.ok ? res.json() : {}; })
       .then(function (saved) {
         window.AA_DAILY = Object.assign({}, window.AA_DAILY || {}, saved || {});

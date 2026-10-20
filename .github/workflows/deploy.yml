@@ -1,0 +1,99 @@
+# Проверка и публикация сайта на хостинг Beget по FTP.
+#
+# Нужные секреты (GitHub → репозиторий → Settings → Secrets and variables → Actions):
+#   FTP_SERVER      — адрес FTP-сервера из панели Beget (раздел FTP)
+#   FTP_USERNAME    — логин FTP
+#   FTP_PASSWORD    — пароль FTP
+#   ADMIN_PASSWORD  — пароль для страницы /admin
+# И переменная (вкладка Variables):
+#   FTP_DIR         — папка сайта на хостинге, например aa-tushino.ru/public_html/
+#
+# Пока секретов нет, выполняется только проверка, публикация пропускается.
+
+name: Проверка и публикация
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+concurrency:
+  group: deploy
+  cancel-in-progress: false
+
+jobs:
+  test:
+    name: Проверка api/daily.php
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Синтаксис PHP
+        run: php -v && php -l api/daily.php
+
+      - name: Тест хранилища Ежедневника
+        run: |
+          set -e
+          php -r 'file_put_contents("api/config.php", "<?php return [\"password_hash\" => " . var_export(password_hash("test-pass", PASSWORD_DEFAULT), true) . "];\n");'
+          php -S 127.0.0.1:8080 -t . > /tmp/php.log 2>&1 &
+          sleep 1
+          API=http://127.0.0.1:8080/api/daily.php
+          code() { curl -s -o /tmp/out -w '%{http_code}' "$@"; }
+
+          test "$(code $API)" = 200 && grep -q '{}' /tmp/out
+          test "$(code -X POST -d '{"check":true}' $API)" = 401
+          test "$(code -X POST -H 'X-Admin-Password: wrong' -d '{"check":true}' $API)" = 401
+          test "$(code -X POST -H 'X-Admin-Password: test-pass' -d '{"check":true}' $API)" = 200
+          test "$(code -X POST -H 'X-Admin-Password: test-pass' -d '{"key":"13-40","title":"x","text":"y"}' $API)" = 400
+          test "$(code -X POST -H 'X-Admin-Password: test-pass' -d '{"key":"10-19","title":"Заголовок","text":"Текст","source":"Книга, с. 1"}' $API)" = 200
+          test "$(code $API)" = 200 && grep -q 'Заголовок' /tmp/out
+          test "$(code -X DELETE -H 'X-Admin-Password: test-pass' "$API?key=10-19")" = 200
+          test "$(code $API)" = 200 && ! grep -q 'Заголовок' /tmp/out
+          echo "Все проверки пройдены"
+          rm -f api/config.php api/storage/daily.json
+
+      - name: Лог сервера при ошибке
+        if: failure()
+        run: cat /tmp/php.log || true
+
+  deploy:
+    name: Публикация на Beget
+    needs: test
+    runs-on: ubuntu-latest
+    env:
+      FTP_SERVER: ${{ secrets.FTP_SERVER }}
+    steps:
+      - name: Секреты не заданы — публикация пропущена
+        if: env.FTP_SERVER == ''
+        run: echo "Добавьте секреты FTP_SERVER, FTP_USERNAME, FTP_PASSWORD, ADMIN_PASSWORD"
+
+      - uses: actions/checkout@v4
+        if: env.FTP_SERVER != ''
+
+      - name: Пароль админки
+        if: env.FTP_SERVER != ''
+        env:
+          ADMIN_PASSWORD: ${{ secrets.ADMIN_PASSWORD }}
+        run: |
+          test -n "$ADMIN_PASSWORD" || { echo "Не задан секрет ADMIN_PASSWORD"; exit 1; }
+          php -r 'file_put_contents("api/config.php", "<?php return [\"password_hash\" => " . var_export(password_hash(getenv("ADMIN_PASSWORD"), PASSWORD_DEFAULT), true) . "];\n");'
+
+      - name: Загрузка по FTP
+        if: env.FTP_SERVER != ''
+        uses: SamKirkland/FTP-Deploy-Action@v4.3.5
+        with:
+          server: ${{ secrets.FTP_SERVER }}
+          username: ${{ secrets.FTP_USERNAME }}
+          password: ${{ secrets.FTP_PASSWORD }}
+          server-dir: ${{ vars.FTP_DIR || 'aa-tushino.ru/public_html/' }}
+          exclude: |
+            **/.git*
+            **/.git*/**
+            .github/**
+            netlify/**
+            netlify.toml
+            package.json
+            backup/**
+            tools/**
+            README.md
+            api/storage/*.json

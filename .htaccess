@@ -1,0 +1,31 @@
+# Настройки сайта для Apache (Beget)
+AddDefaultCharset UTF-8
+Options -Indexes
+DirectoryIndex index.html
+
+<IfModule mod_rewrite.c>
+  RewriteEngine On
+  # Перенаправление на https включим после выпуска SSL-сертификата на Beget
+  # Короткий адрес админки
+  RewriteRule ^admin/?$ admin.html [L]
+</IfModule>
+
+<IfModule mod_headers.c>
+  Header always set X-Content-Type-Options "nosniff"
+  Header always set Referrer-Policy "strict-origin-when-cross-origin"
+  <FilesMatch "^admin\.html$">
+    Header set X-Robots-Tag "noindex, nofollow"
+    Header set Cache-Control "no-store"
+  </FilesMatch>
+  <FilesMatch "\.(woff2|svg)$">
+    Header set Cache-Control "public, max-age=2592000"
+  </FilesMatch>
+  <FilesMatch "\.(css|js)$">
+    Header set Cache-Control "public, max-age=300"
+  </FilesMatch>
+</IfModule>
+
+# Служебные файлы не отдаём
+<FilesMatch "^(README\.md|package\.json|netlify\.toml|\.gitignore)$">
+  Require all denied
+</FilesMatch>

@@ -1,0 +1,4 @@
+# config.php содержит хэш пароля — снаружи не открывается
+<Files "config.php">
+  Require all denied
+</Files>
