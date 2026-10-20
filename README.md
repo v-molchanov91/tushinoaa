@@ -21,6 +21,7 @@ assets/                  шрифты (Lora, Golos Text) и Leaflet — без �
 .htaccess                rewrite /admin, заголовки, закрытие служебных файлов
 .github/workflows/       тесты PHP + деплой на Beget
 tools/import_daily.py    импорт Ежедневника из .txt в data/daily.js
+tools/render_static.py   статичная копия расписания в index.html (для поисковиков), вызывается при деплое
 docs/                    шаблон согласия на публикацию телефона (не деплоится)
 ```
 
@@ -81,7 +82,7 @@ python tools/import_daily.py daily.txt
 
 1. тесты `api/daily.php` на PHP 5.6 и 8.3 (docker, curl);
 2. генерация `api/config.php` из секрета `ADMIN_PASSWORD`;
-3. версия коммита в `?v=` у всех CSS/JS (сброс кэша браузеров);
+3. статичное расписание в `index.html` из `data/schedule.js` и версия коммита в `?v=` у всех CSS/JS;
 4. загрузка по FTPS (`SamKirkland/FTP-Deploy-Action`) — только изменённые файлы.
 
 Секреты репозитория: `FTP_SERVER`, `FTP_USERNAME`, `FTP_PASSWORD`, `ADMIN_PASSWORD`. Необязательная переменная `FTP_DIR` (по умолчанию `./` — FTP-аккаунт смотрит прямо в `public_html`). Без секретов выполняются только тесты.

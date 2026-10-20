@@ -398,3 +398,6 @@ h3 { font-family: 'Lora', Georgia, serif; font-size: 1.2rem; margin-bottom: 8px;
 /* Кнопки чатов — одинаковой ширины */
 .chat-btns { width: 100%; }
 .chat-btns .btn { flex: 1 1 0; min-width: 120px; align-self: stretch; }
+
+/* Статичное расписание (до запуска скрипта) */
+.week-static { grid-column: 1 / -1; list-style: none; display: grid; gap: 6px; color: var(--ink-mid); }

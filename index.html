@@ -3,11 +3,14 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>АА Тушино — собрания Анонимных Алкоголиков в Москве</title>
-  <meta name="description" content="Группа Анонимных Алкоголиков «Тушино». Москва, Волоколамское шоссе, 92. Все собрания открытые. Расписание, тематика, Ежедневник АА, контакты.">
+  <title>АА Тушино — группа Анонимных Алкоголиков у м. Тушинская, Москва</title>
+  <meta name="description" content="Группа АА «Тушино»: открытые собрания Анонимных Алкоголиков у метро Тушинская, Волоколамское ш., 92. Пн 14:00, Вт 20:30, Ср 19:30, Сб 18:30, Вс 17:00. Без записи и бесплатно.">
+  <link rel="canonical" href="http://aa-tushino.ru/">
   <meta name="theme-color" content="#1d5fae">
 
   <meta property="og:type" content="website">
+  <meta property="og:url" content="http://aa-tushino.ru/">
+  <meta property="og:site_name" content="АА Тушино">
   <meta property="og:title" content="АА Тушино — группа Анонимных Алкоголиков в Москве">
   <meta property="og:description" content="Собрания группы «Тушино» на Волоколамском шоссе, 92. Пн, Вт, Ср, Сб, Вс — приходите.">
   <meta property="og:locale" content="ru_RU">
@@ -16,6 +19,41 @@
   <link rel="stylesheet" href="assets/fonts.css">
   <link rel="stylesheet" href="assets/leaflet/leaflet.css">
   <link rel="stylesheet" href="styles.css">
+
+  <script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "Organization",
+  "name": "Группа Анонимных Алкоголиков «Тушино»",
+  "alternateName": [
+    "АА Тушино",
+    "Анонимные Алкоголики Тушино"
+  ],
+  "url": "http://aa-tushino.ru/",
+  "telephone": "+7 925 439-70-90",
+  "description": "Открытые собрания Анонимных Алкоголиков у метро «Тушинская» в Москве.",
+  "address": {
+    "@type": "PostalAddress",
+    "streetAddress": "Волоколамское шоссе, 92",
+    "addressLocality": "Москва",
+    "postalCode": "125424",
+    "addressCountry": "RU"
+  },
+  "location": {
+    "@type": "Place",
+    "name": "Волоколамское шоссе, 92",
+    "geo": {
+      "@type": "GeoCoordinates",
+      "latitude": 55.82481,
+      "longitude": 37.43496
+    }
+  },
+  "sameAs": [
+    "https://t.me/+63BWL2iQNQA4NTli",
+    "https://max.ru/join/Lra-RvViRR3Cwgz8yYn0aEfH_BKFR6qT-r69Uh1ns0Y"
+  ]
+}
+  </script>
 </head>
 <body>
 
@@ -73,7 +111,7 @@
   <section id="schedule" class="section">
     <div class="wrap">
       <h2>Расписание собраний</h2>
-      <p class="lead">Собрания проходят очно на Волоколамском шоссе, 92. Регистрация и запись не нужны — просто приходите.</p>
+      <p class="lead">Собрания проходят очно в Тушино: Волоколамское шоссе, 92, рядом с метро и МЦД «Тушинская» (СЗАО). Регистрация и запись не нужны — просто приходите.</p>
 
       <div class="open-banner">
         <svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
@@ -91,7 +129,17 @@
       <h3 class="week-title">Ближайшие 7 дней</h3>
 
       <div class="week" id="week" role="list">
-        <!-- заполняется скриптом из data/schedule.js -->
+        <!-- Статичная версия для поисковиков и браузеров без JS; app.js заменяет её -->
+        <!-- static-schedule:start -->
+        <ul class="week-static">
+          <li><b>Понедельник, 14:00</b> — Большая книга АА и Ежедневник АА</li>
+          <li><b>Вторник, 20:30</b> — Ежедневник АА и 12×12</li>
+          <li><b>Среда, 19:30</b> — Большая книга АА и Ежедневник АА; 1-я среда месяца — спикерское собрание; последняя среда месяца — рабочее собрание группы</li>
+          <li><b>Суббота, 18:30</b> — Большая книга АА и Ежедневник АА</li>
+          <li><b>Воскресенье, 17:00</b> — Ежедневник АА и 12×12</li>
+          <li><b>Четверг, пятница</b> — собраний нет</li>
+        </ul>
+        <!-- static-schedule:end -->
       </div>
 
       <div class="legend">
@@ -187,8 +235,8 @@
       <div class="contacts-grid">
         <div class="card">
           <h3>Адрес</h3>
-          <p class="big" id="c-address"></p>
-          <p class="muted" id="c-address-hint"></p>
+          <p class="big" id="c-address">г. Москва, Волоколамское шоссе, д. 92</p>
+          <p class="muted" id="c-address-hint">Рядом с метро и МЦД «Тушинская», пара минут пешком.</p>
           <a class="btn btn-primary" id="c-map" target="_blank" rel="noopener">
             <svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7z"/><circle cx="12" cy="9" r="2.5"/></svg>
             Построить маршрут

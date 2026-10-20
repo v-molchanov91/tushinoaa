@@ -88,6 +88,10 @@ jobs:
           test -n "$ADMIN_PASSWORD" || { echo "Не задан секрет ADMIN_PASSWORD"; exit 1; }
           php -r 'file_put_contents("api/config.php", "<?php return [\"password_hash\" => " . var_export(password_hash(trim(getenv("ADMIN_PASSWORD")), PASSWORD_DEFAULT), true) . "];\n");'
 
+      - name: Статичное расписание для поисковиков (из data/schedule.js)
+        if: env.FTP_SERVER != ''
+        run: python3 tools/render_static.py
+
       - name: Номер версии у CSS и JS (чтобы браузеры сразу брали свежие файлы)
         if: env.FTP_SERVER != ''
         run: |
