@@ -86,6 +86,9 @@ jobs:
           server: ${{ secrets.FTP_SERVER }}
           username: ${{ secrets.FTP_USERNAME }}
           password: ${{ secrets.FTP_PASSWORD }}
+          # Beget принимает только зашифрованное соединение (FTPS), сертификат *.beget.tech
+          protocol: ftps
+          security: strict
           server-dir: ${{ vars.FTP_DIR || './' }}
           exclude: |
             **/.git*
