@@ -10,6 +10,8 @@
  * Хэш пароля лежит в api/config.php — этот файл создаётся при публикации
  * из секрета ADMIN_PASSWORD в GitHub и в репозиторий не попадает.
  * Тексты хранятся в api/storage/daily.json — публикация этот файл не трогает.
+ *
+ * Код совместим с PHP 5.6 (такая версия стоит на бесплатном тарифе Beget по умолчанию).
  */
 
 header('Content-Type: application/json; charset=utf-8');
@@ -21,29 +23,29 @@ const LIMITS = ['title' => 300, 'quote' => 3000, 'source' => 500, 'text' => 1000
 $storageDir = __DIR__ . '/storage';
 $storageFile = $storageDir . '/daily.json';
 
-function reply($data, int $status = 200): void {
+function reply($data, $status = 200) {
     http_response_code($status);
     echo json_encode($data, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
     exit;
 }
 
-function load_all(string $file): array {
+function load_all($file) {
     if (!is_file($file)) return [];
     $data = json_decode((string) file_get_contents($file), true);
     return is_array($data) ? $data : [];
 }
 
-function authorized(): bool {
+function authorized() {
     $configFile = __DIR__ . '/config.php';
     if (!is_file($configFile)) return false;
     $config = require $configFile;
-    $hash = is_array($config) ? ($config['password_hash'] ?? '') : '';
-    $given = $_SERVER['HTTP_X_ADMIN_PASSWORD'] ?? '';
+    $hash = (is_array($config) && isset($config['password_hash'])) ? $config['password_hash'] : '';
+    $given = isset($_SERVER['HTTP_X_ADMIN_PASSWORD']) ? $_SERVER['HTTP_X_ADMIN_PASSWORD'] : '';
     return $hash !== '' && $given !== '' && password_verify($given, $hash);
 }
 
 // Изменение файла под блокировкой, чтобы два сохранения не затёрли друг друга
-function update_all(string $dir, string $file, callable $change): array {
+function update_all($dir, $file, $change) {
     if (!is_dir($dir) && !mkdir($dir, 0755, true)) reply(['error' => 'Не удалось создать папку хранилища'], 500);
     $fp = fopen($file, 'c+');
     if (!$fp || !flock($fp, LOCK_EX)) reply(['error' => 'Хранилище недоступно'], 500);
@@ -61,7 +63,7 @@ function update_all(string $dir, string $file, callable $change): array {
     return $all;
 }
 
-$method = $_SERVER['REQUEST_METHOD'] ?? 'GET';
+$method = isset($_SERVER['REQUEST_METHOD']) ? $_SERVER['REQUEST_METHOD'] : 'GET';
 
 if ($method === 'GET') {
     header('Cache-Control: public, max-age=60');
@@ -79,13 +81,14 @@ if ($method === 'POST') {
     if (!is_array($body)) reply(['error' => 'Некорректные данные'], 400);
     if (!empty($body['check'])) reply(['ok' => true]); // проверка пароля
 
-    $key = (string) ($body['key'] ?? '');
+    $key = isset($body['key']) ? (string) $body['key'] : '';
     if (!preg_match(KEY_RE, $key)) reply(['error' => 'Дата должна быть в формате ММ-ДД'], 400);
 
     $entry = [];
     foreach (LIMITS as $field => $max) {
-        $v = trim((string) ($body[$field] ?? ''));
-        if (mb_strlen($v) > $max) reply(['error' => "Поле «{$field}» слишком длинное"], 400);
+        $v = isset($body[$field]) ? trim((string) $body[$field]) : '';
+        $len = function_exists('mb_strlen') ? mb_strlen($v, 'UTF-8') : strlen(utf8_decode($v));
+        if ($len > $max) reply(['error' => "Поле «{$field}» слишком длинное"], 400);
         if ($v !== '') $entry[$field] = $v;
     }
     if (empty($entry['title']) || empty($entry['text'])) reply(['error' => 'Нужны хотя бы заголовок и текст'], 400);
@@ -98,7 +101,7 @@ if ($method === 'POST') {
 }
 
 if ($method === 'DELETE') {
-    $key = (string) ($_GET['key'] ?? '');
+    $key = isset($_GET['key']) ? (string) $_GET['key'] : '';
     if (!preg_match(KEY_RE, $key)) reply(['error' => 'Неверная дата'], 400);
     $all = update_all($storageDir, $storageFile, function ($all) use ($key) {
         unset($all[$key]);

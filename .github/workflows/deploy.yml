@@ -24,20 +24,27 @@ concurrency:
 
 jobs:
   test:
-    name: Проверка api/daily.php
+    name: Проверка api/daily.php (PHP ${{ matrix.php }})
     runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        # 5.6 — версия по умолчанию на бесплатном Beget, 8.3 — современная
+        php: ["5.6", "8.3"]
     steps:
       - uses: actions/checkout@v4
 
-      - name: Синтаксис PHP
-        run: php -v && php -l api/daily.php
+      - name: Запуск PHP ${{ matrix.php }}
+        run: |
+          php -r 'file_put_contents("api/config.php", "<?php return [\"password_hash\" => " . var_export(password_hash("test-pass", PASSWORD_DEFAULT), true) . "];
+");'
+          docker run -d --name php -p 8080:8080 -v "$PWD:/app" -w /app php:${{ matrix.php }}-cli php -S 0.0.0.0:8080 -t /app
+          sleep 3
+          docker exec php php -v
+          docker exec php php -l api/daily.php
 
       - name: Тест хранилища Ежедневника
         run: |
           set -e
-          php -r 'file_put_contents("api/config.php", "<?php return [\"password_hash\" => " . var_export(password_hash("test-pass", PASSWORD_DEFAULT), true) . "];\n");'
-          php -S 127.0.0.1:8080 -t . > /tmp/php.log 2>&1 &
-          sleep 1
           API=http://127.0.0.1:8080/api/daily.php
           code() { curl -s -o /tmp/out -w '%{http_code}' "$@"; }
 
@@ -51,11 +58,10 @@ jobs:
           test "$(code -X DELETE -H 'X-Admin-Password: test-pass' "$API?key=10-19")" = 200
           test "$(code $API)" = 200 && ! grep -q 'Заголовок' /tmp/out
           echo "Все проверки пройдены"
-          rm -f api/config.php api/storage/daily.json
 
       - name: Лог сервера при ошибке
         if: failure()
-        run: cat /tmp/php.log || true
+        run: docker logs php || true
 
   deploy:
     name: Публикация на Beget
