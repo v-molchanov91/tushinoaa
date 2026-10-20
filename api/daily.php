@@ -35,13 +35,22 @@ function load_all($file) {
     return is_array($data) ? $data : [];
 }
 
-function authorized() {
+// Проверка пароля. Возвращает '' при успехе или код причины отказа
+// (сам пароль и хэш в ответ никогда не попадают).
+function auth_problem() {
     $configFile = __DIR__ . '/config.php';
-    if (!is_file($configFile)) return false;
+    if (!is_file($configFile)) return 'no_config';
     $config = require $configFile;
     $hash = (is_array($config) && isset($config['password_hash'])) ? $config['password_hash'] : '';
+    if ($hash === '') return 'no_config';
+    // Пароль — из заголовка X-Admin-Password или из поля password в теле запроса
     $given = isset($_SERVER['HTTP_X_ADMIN_PASSWORD']) ? $_SERVER['HTTP_X_ADMIN_PASSWORD'] : '';
-    return $hash !== '' && $given !== '' && password_verify($given, $hash);
+    if ($given === '') {
+        $body = json_decode((string) file_get_contents('php://input'), true);
+        if (is_array($body) && isset($body['password'])) $given = (string) $body['password'];
+    }
+    if ($given === '') return 'no_password';
+    return password_verify($given, $hash) ? '' : 'mismatch';
 }
 
 // Изменение файла под блокировкой, чтобы два сохранения не затёрли друг друга
@@ -71,9 +80,15 @@ if ($method === 'GET') {
     reply($all ?: new stdClass());
 }
 
-if (!authorized()) {
+$problem = auth_problem();
+if ($problem !== '') {
     usleep(500000); // замедляем подбор пароля
-    reply(['error' => 'Неверный пароль'], 401);
+    $messages = [
+        'no_config'   => 'На сервере не задан пароль: опубликуйте сайт заново (секрет ADMIN_PASSWORD)',
+        'no_password' => 'Пароль не дошёл до сервера',
+        'mismatch'    => 'Неверный пароль',
+    ];
+    reply(['error' => $messages[$problem], 'reason' => $problem], 401);
 }
 
 if ($method === 'POST') {

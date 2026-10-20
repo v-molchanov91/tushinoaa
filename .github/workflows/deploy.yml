@@ -51,6 +51,9 @@ jobs:
           test "$(code -X POST -d '{"check":true}' $API)" = 401
           test "$(code -X POST -H 'X-Admin-Password: wrong' -d '{"check":true}' $API)" = 401
           test "$(code -X POST -H 'X-Admin-Password: test-pass' -d '{"check":true}' $API)" = 200
+          test "$(code -X POST -d '{"check":true,"password":"test-pass"}' $API)" = 200
+          test "$(code -X POST -d '{"check":true}' $API)" = 401 && grep -q 'no_password' /tmp/out
+          test "$(code -X POST -d '{"check":true,"password":"nope"}' $API)" = 401 && grep -q 'mismatch' /tmp/out
           test "$(code -X POST -H 'X-Admin-Password: test-pass' -d '{"key":"13-40","title":"x","text":"y"}' $API)" = 400
           test "$(code -X POST -H 'X-Admin-Password: test-pass' -d '{"key":"10-19","title":"Заголовок","text":"Текст","source":"Книга, с. 1"}' $API)" = 200
           test "$(code $API)" = 200 && grep -q 'Заголовок' /tmp/out

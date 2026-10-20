@@ -174,7 +174,8 @@
     return fetch(API + (query || ''), {
       method: method,
       headers: { 'content-type': 'application/json', 'authorization': 'Bearer ' + password, 'x-admin-password': password },
-      body: body ? JSON.stringify(body) : undefined
+      // пароль дублируем в теле — на случай, если сервер отбросит заголовок
+      body: JSON.stringify(Object.assign({}, body || {}, { password: password }))
     }).then(function (r) {
       return r.json().catch(function () { return {}; }).then(function (data) {
         if (!r.ok) throw new Error(data.error || ('Ошибка ' + r.status));
