@@ -13,8 +13,11 @@
 | `data/daily.js` | **Ежедневник АА — тексты на каждый день года** (создаётся скриптом) |
 | `tools/import_daily.py` | Скрипт: переводит текст ежедневника из .txt в `data/daily.js` |
 | `admin.html` | **Страница /admin: добавление дней Ежедневника через браузер** |
-| `netlify/functions/daily.mjs` | Серверная часть: хранит дни из /admin в Netlify Blobs |
-| `netlify.toml` | Настройки Netlify |
+| `api/daily.php` | Серверная часть для Beget: хранит дни из /admin в `api/storage/daily.json` |
+| `.htaccess` | Настройки веб-сервера Beget (адрес /admin, защита служебных файлов) |
+| `.github/workflows/deploy.yml` | Проверка и автоматическая публикация на Beget по FTP |
+| `assets/` | Шрифты и библиотека карты — лежат на сайте, без внешних CDN |
+| `netlify/functions/daily.mjs`, `netlify.toml` | Старый вариант для Netlify (в России работает плохо) |
 
 Чаще всего нужно править только два файла в `data/`.
 
@@ -28,12 +31,26 @@
 Дни хранятся без года (ключ «ММ-ДД»), поэтому на следующий год всё показывается само.
 Внизу страницы — календарь: видно, какие дни уже заполнены.
 
-**Пароль** задаётся один раз: Netlify → Project configuration → Environment variables →
-Add a variable → ключ `ADMIN_PASSWORD`, значение — ваш пароль. После этого сделайте новый деплой.
+**Пароль** задаётся в GitHub: Settings → Secrets and variables → Actions → секрет
+`ADMIN_PASSWORD`. Чтобы сменить пароль, измените секрет и перезапустите публикацию
+(вкладка Actions → «Проверка и публикация» → Run workflow).
 
-> Страница /admin работает только при публикации через GitHub (вариант 2 ниже) или
-> через Netlify CLI. При простом перетаскивании папки серверная часть не публикуется —
-> сайт работает, а сохранение в /admin нет.
+## Публикация на Beget (основной хостинг)
+
+Каждое изменение в ветке `main` на GitHub автоматически проверяется и выкладывается на Beget.
+Один раз нужно задать в GitHub (Settings → Secrets and variables → Actions):
+
+| Секрет | Что это |
+|---|---|
+| `FTP_SERVER` | адрес FTP-сервера из панели Beget (раздел FTP) |
+| `FTP_USERNAME` | логин FTP |
+| `FTP_PASSWORD` | пароль FTP |
+| `ADMIN_PASSWORD` | пароль для страницы /admin |
+
+И переменную `FTP_DIR` (вкладка Variables) — папку сайта, например `aa-tushino.ru/public_html/`.
+
+Тексты, сохранённые через /admin, лежат на хостинге в `api/storage/daily.json`;
+публикация этот файл не трогает.
 
 ## Как загрузить Ежедневник АА файлом
 
@@ -51,7 +68,7 @@ Add a variable → ключ `ADMIN_PASSWORD`, значение — ваш пар
 
 Откройте `index.html` двойным щелчком, сайт откроется в браузере.
 
-## Как опубликовать на Netlify
+## Старый вариант: Netlify
 
 ### Вариант 1. Перетащить папку (проще всего, но без /admin)
 1. Откройте https://app.netlify.com/projects/tushinoaa/deploys
