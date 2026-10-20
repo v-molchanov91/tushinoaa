@@ -111,5 +111,6 @@ jobs:
             package.json
             backup/**
             tools/**
+            docs/**
             README.md
             api/storage/*.json
