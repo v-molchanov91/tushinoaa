@@ -187,6 +187,9 @@
     function set(id, text) { var e = document.getElementById(id); if (e) e.textContent = text || ''; }
     set('c-address', group.address);
     set('c-address-hint', group.addressHint);
+    // Нет телефона группы — прячем карточку и номер в шапке
+    document.getElementById('c-phone-card').hidden = !group.phone;
+    document.getElementById('hero-phone-wrap').hidden = !group.phone;
     set('c-phone', group.phonePretty);
     set('hero-phone', group.phonePretty);
     var tel = 'tel:' + (group.phone || '');
