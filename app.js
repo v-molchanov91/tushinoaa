@@ -210,6 +210,8 @@
     if (!box || !window.L || !group.lat) return;
     box.parentNode.classList.add('loaded');
     var map = L.map(box, { scrollWheelZoom: false }).setView([group.lat, group.lon], 16);
+    // Убираем подпись «Leaflet» с флагом; ссылку на OpenStreetMap оставляем — её требует лицензия карты
+    map.attributionControl.setPrefix(false);
     L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
       maxZoom: 19,
       // OpenStreetMap требует, чтобы браузер сообщал адрес сайта, иначе отвечает «Access blocked»

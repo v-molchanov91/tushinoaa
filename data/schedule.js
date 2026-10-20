@@ -13,15 +13,16 @@
  * note     — (необязательно) пояснение под темой
  */
 var BASE_TOPIC = "Большая книга АА и Ежедневник АА";
+var TOPIC_12X12 = "Ежедневник АА и 12×12";
 
 window.AA_SCHEDULE = [
   { day: 1, time: "14:00", duration: 75, topic: BASE_TOPIC },
-  { day: 2, time: "20:30", duration: 75, topic: BASE_TOPIC },
+  { day: 2, time: "20:30", duration: 75, topic: TOPIC_12X12 },
   { day: 3, time: "19:30", duration: 75, topic: BASE_TOPIC,
     special: { first: "Спикерское собрание", last: "Рабочее собрание группы" },
     note: "1-я среда месяца — спикерская, последняя — рабочее собрание" },
   { day: 6, time: "18:30", duration: 75, topic: BASE_TOPIC },
-  { day: 0, time: "17:00", duration: 75, topic: BASE_TOPIC }
+  { day: 0, time: "17:00", duration: 75, topic: TOPIC_12X12 }
 ];
 
 /* Контакты группы — тоже правятся здесь */
