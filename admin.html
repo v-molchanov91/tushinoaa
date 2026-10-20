@@ -173,7 +173,9 @@
   function api(method, body, query) {
     return fetch(API + (query || ''), {
       method: method,
-      headers: { 'content-type': 'application/json', 'authorization': 'Bearer ' + password, 'x-admin-password': password },
+      headers: /^[ -~]*$/.test(password)
+        ? { 'content-type': 'application/json', 'authorization': 'Bearer ' + password, 'x-admin-password': password }
+        : { 'content-type': 'application/json' },
       // пароль дублируем в теле — на случай, если сервер отбросит заголовок
       body: JSON.stringify(Object.assign({}, body || {}, { password: password }))
     }).then(function (r) {
@@ -186,7 +188,7 @@
 
   /* ── Вход ── */
   function login() {
-    password = $('pw').value || password;
+    password = ($('pw').value || password).trim();
     if (!password) return;
     api('POST', { check: true }).then(function () {
       try { sessionStorage.setItem('aa_admin_pw', password); } catch (e) {}

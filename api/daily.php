@@ -49,6 +49,7 @@ function auth_problem() {
         $body = json_decode((string) file_get_contents('php://input'), true);
         if (is_array($body) && isset($body['password'])) $given = (string) $body['password'];
     }
+    $given = trim($given);
     if ($given === '') return 'no_password';
     return password_verify($given, $hash) ? '' : 'mismatch';
 }
