@@ -110,9 +110,6 @@ jobs:
             **/.git*
             **/.git*/**
             .github/**
-            netlify/**
-            netlify.toml
-            package.json
             backup/**
             tools/**
             docs/**

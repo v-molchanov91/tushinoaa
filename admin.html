@@ -69,7 +69,7 @@
     <!-- Вход -->
     <section class="panel" id="login">
       <h2>Вход</h2>
-      <label for="pw">Пароль <small>(задаётся в настройках Netlify, переменная ADMIN_PASSWORD)</small></label>
+      <label for="pw">Пароль <small>(секрет ADMIN_PASSWORD в настройках репозитория на GitHub)</small></label>
       <input type="password" id="pw" autocomplete="current-password">
       <div class="row"><button class="btn btn-primary" id="login-btn">Войти</button></div>
       <div id="login-msg"></div>
@@ -148,11 +148,11 @@
   var MONTHS = ['Январь','Февраль','Март','Апрель','Май','Июнь','Июль','Август','Сентябрь','Октябрь','Ноябрь','Декабрь'];
   var MONTHS_GEN = ['января','февраля','марта','апреля','мая','июня','июля','августа','сентября','октября','ноября','декабря'];
   var DAYS_IN_MONTH = [31,29,31,30,31,30,31,31,30,31,30,31];
-  var API = /netlify\.app$/.test(location.hostname) ? '/api/daily' : '/api/daily.php';
+  var API = '/api/daily.php';
   var $ = function (id) { return document.getElementById(id); };
 
   var password = '';
-  var saved = {};                         // из хранилища Netlify
+  var saved = {};                         // из хранилища на сервере (api/daily.php)
   var fromFile = window.AA_DAILY || {};   // из data/daily.js
 
   function pad(n) { return ('0' + n).slice(-2); }
@@ -160,7 +160,7 @@
   function human(key) { var p = key.split('-'); return +p[1] + ' ' + MONTHS_GEN[+p[0] - 1]; }
   function show(box, text, ok) { $(box).innerHTML = ''; var d = document.createElement('div'); d.className = 'msg ' + (ok ? 'ok' : 'err'); d.textContent = text; $(box).appendChild(d); }
 
-  // Сохранение работает только на опубликованном сайте Netlify
+  // Сохранение работает только на опубликованном сайте
   if (/^(localhost|127\.0\.0\.1|\[::1\])$/.test(location.hostname) || location.protocol === 'file:') {
     var warn = document.createElement('div');
     warn.className = 'msg err';
@@ -174,7 +174,7 @@
     return fetch(API + (query || ''), {
       method: method,
       headers: /^[ -~]*$/.test(password)
-        ? { 'content-type': 'application/json', 'authorization': 'Bearer ' + password, 'x-admin-password': password }
+        ? { 'content-type': 'application/json', 'x-admin-password': password }
         : { 'content-type': 'application/json' },
       // пароль дублируем в теле — на случай, если сервер отбросит заголовок
       body: JSON.stringify(Object.assign({}, body || {}, { password: password }))
@@ -197,7 +197,7 @@
       return loadSaved();
     }).catch(function (e) {
       try { sessionStorage.removeItem('aa_admin_pw'); } catch (er) {}
-      show('login-msg', e.message === 'Failed to fetch' ? 'Нет связи с сервером. Страница работает только на опубликованном сайте Netlify.' : e.message, false);
+      show('login-msg', e.message === 'Failed to fetch' ? 'Нет связи с сервером. Страница работает только на опубликованном сайте.' : e.message, false);
     });
   }
   $('login-btn').addEventListener('click', login);

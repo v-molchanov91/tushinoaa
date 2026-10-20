@@ -22,7 +22,6 @@ assets/                  шрифты (Lora, Golos Text) и Leaflet — без �
 .github/workflows/       тесты PHP + деплой на Beget
 tools/import_daily.py    импорт Ежедневника из .txt в data/daily.js
 docs/                    шаблон согласия на публикацию телефона (не деплоится)
-netlify*, package.json   старый деплой на Netlify, сейчас не используется
 ```
 
 ## Локальный запуск

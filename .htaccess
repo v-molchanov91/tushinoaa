@@ -26,6 +26,6 @@ DirectoryIndex index.html
 </IfModule>
 
 # Служебные файлы не отдаём
-<FilesMatch "^(README\.md|package\.json|netlify\.toml|\.gitignore)$">
+<FilesMatch "^(README\.md|\.gitignore)$">
   Require all denied
 </FilesMatch>
