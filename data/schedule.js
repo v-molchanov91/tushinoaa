@@ -37,5 +37,7 @@ window.AA_GROUP = {
   phonePretty: "",
   lat: 55.82481,
   lon: 37.43496,
-  telegram: "" // например "https://t.me/aa_tushino" — оставьте пустым, если нет
+  // Чаты группы. Пустая строка — кнопка не показывается.
+  telegram: "https://t.me/+63BWL2iQNQA4NTli",
+  max: ""      // ссылка-приглашение из настроек группы в MAX, вида "https://max.ru/..."
 };

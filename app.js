@@ -201,11 +201,12 @@
       'https://yandex.ru/maps/?rtext=~' + group.lat + ',' + group.lon + '&rtt=mt';
     document.getElementById('map-link').href =
       'https://yandex.ru/maps/?pt=' + group.lon + ',' + group.lat + '&z=17&l=map';
-    if (group.telegram) {
-      var tg = document.getElementById('c-tg');
-      tg.href = group.telegram;
-      tg.hidden = false;
-    }
+    // Чаты группы: показываем только те кнопки, для которых есть ссылка
+    [['c-tg', group.telegram], ['c-max', group.max]].forEach(function (pair) {
+      var a = document.getElementById(pair[0]);
+      if (pair[1]) { a.href = pair[1]; a.hidden = false; }
+    });
+    document.getElementById('c-chat-card').hidden = !(group.telegram || group.max);
   }
 
   function renderMap() {

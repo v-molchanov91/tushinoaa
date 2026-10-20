@@ -25,3 +25,10 @@
   [headers.values]
     X-Robots-Tag = "noindex, nofollow"
     Cache-Control = "no-store"
+
+# Сайт переехал на Beget — все старые адреса ведут на новый домен
+[[redirects]]
+  from = "/*"
+  to = "http://aa-tushino.ru/:splat"
+  status = 301
+  force = true
